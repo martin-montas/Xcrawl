@@ -27,6 +27,9 @@ func main() {
 		Nock Url/Param Crawler.
 		v0.0.1
 
+
+		coder: @github.com/martin-montas
+
 	`)
 	fmt.Print("\033[0m")
 	if *verbose {
