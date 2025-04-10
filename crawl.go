@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func extractLinks() ([]string, error) {
+func extractLinks(urls []string) ([]string, error) {
 	resp, err := http.Get(urls[0])
 	if err != nil {
 		log.Fatal(err)
@@ -18,7 +18,6 @@ func extractLinks() ([]string, error) {
 	// Print the response body
 
 	// Parse the HTML from the response
-
 	doc, err := html.Parse(resp.Body)
 	if err != nil {
 		log.Fatal(err)
