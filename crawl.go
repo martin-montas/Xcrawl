@@ -7,9 +7,13 @@ import (
 )
 
 func extractLinks(urls []string) ([]string, error) {
+	// Slice to store extracted href links
+	var links []string
+
 	resp, err := http.Get(urls[0])
 	if err != nil {
 		log.Fatal(err)
+		return links, err
 	}
 	defer resp.Body.Close()
 
@@ -23,8 +27,6 @@ func extractLinks(urls []string) ([]string, error) {
 		log.Fatal(err)
 	}
 
-	// Slice to store extracted href links
-	var links []string
 
 	// Recursive function to traverse the HTML tree
 	var extractHrefs func(*html.Node)
