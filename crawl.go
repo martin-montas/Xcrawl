@@ -4,13 +4,15 @@ import (
 	"log"
 	"golang.org/x/net/html"
 	"net/http"
+	"net/url"
 )
 
-func extractLinks(urls []string) ([]string, error) {
-	// Slice to store extracted href links
-	var links []string
+var links []string
 
-	resp, err := http.Get(urls[0])
+func extractLinks(currDomain string) ([]string, error) {
+	// Slice to store extracted href links
+
+	resp, err := http.Get(currDomain)
 	if err != nil {
 		log.Fatal(err)
 		return links, err
@@ -27,15 +29,24 @@ func extractLinks(urls []string) ([]string, error) {
 		log.Fatal(err)
 	}
 
-
 	// Recursive function to traverse the HTML tree
 	var extractHrefs func(*html.Node)
 	extractHrefs = func(n *html.Node) {
+
 		// If the node is an <a> tag, get the href attribute
 		if n.Type == html.ElementNode && n.Data == "a" {
 			for _, attr := range n.Attr {
 				if attr.Key == "href" {
-					links = append(links, attr.Val)
+					// process the domain
+					ok, fullURL, err := validateDomain(currDomain, attr.Val)
+					
+					if err == nil {
+						log.Fatal(err)
+					}
+
+					if ok {
+						links = append(links, fullURL)
+					}
 				}
 			}
 		}
@@ -48,6 +59,24 @@ func extractLinks(urls []string) ([]string, error) {
 
 	// Start extracting href attributes from the root of the HTML tree
 	extractHrefs(doc)
-
 	return links, nil
 }
+
+func validateDomain(baseSite string, foundURI string) (bool, string, error) {
+	baseURL, err := url.Parse(baseSite)
+	if err != nil {
+		return false, "", err
+	}
+
+	targetURL, err := url.Parse(foundURI)
+	if err != nil {
+		return false, "", err
+	}
+
+	// Resolve relative URI to absolute
+	resolvedURL := baseURL.ResolveReference(targetURL)
+
+	// Compare hostnames
+	return resolvedURL.Host == baseURL.Host, resolvedURL.String(), nil
+}
+
