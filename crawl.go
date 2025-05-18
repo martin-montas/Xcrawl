@@ -72,7 +72,6 @@ func extractLinks(doc html.Node)   {
 func validateDomain(baseSite string, foundURI string) (bool, string, error) {
 	baseURL, err := url.Parse(baseSite)
 	if err != nil {
-		fmt.Println("fuck!!")
 		return false, "", err
 	}
 	targetURL, err := url.Parse(foundURI)
