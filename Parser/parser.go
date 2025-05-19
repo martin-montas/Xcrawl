@@ -11,6 +11,13 @@ import (
 	"golang.org/x/net/html"
 )
 
+var t = [4]string {
+	"a",
+	"link",
+	"base",
+	"area",
+}
+
 func Parse(n string) *html.Node {
 	r, err := http.Get(n)
 	fmt.Println(time.Now().Format("2006-01-02 03:04:05 PM"),
@@ -40,12 +47,12 @@ func Extract(n html.Node, d string) {
 			for _, attr := range n.Attr {
 				if attr.Key == "href" {
 					fmt.Println("Link:", attr.Val)
-					var obj Link
+					//var obj Link
 					// find a way to display the whole path
 					// and use it as the path variable of the object above
 
-					obj.setOwner(attr.Val, true, attr.Val)
-					links = append(links, obj)
+					//obj.setOwner(attr.Val, true, attr.Val)
+					//links = append(links, obj)
 				}
 			}
 			if n.FirstChild != nil && n.FirstChild.Type == html.TextNode {
@@ -54,6 +61,6 @@ func Extract(n html.Node, d string) {
 		}
 	}
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		extract(*c, d)
+		Extract(*c, d)
 	}
 }

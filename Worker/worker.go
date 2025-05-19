@@ -6,7 +6,6 @@ import (
 	"fmt"
 )
 
-
 type Link struct {
 	path    string
 	lives   bool
@@ -16,8 +15,8 @@ type Link struct {
 }
 
 func Run(d string, t int, v string) {
-	n := fetcher.Parse(d)
-	parser.extract(*n, d)
+	n := parser.Parse(d)
+	parser.Extract(*n, d)
 }
 
 func (u *Link) setOwner(path string, lives bool, text string, visited bool) {
@@ -33,8 +32,8 @@ func (u *Link) owner() Link {
 
 func (u *Link) printLink() {
 	fmt.Println(u.path)
-
 }
+
 func (u *Link) printlives() bool {
 	fmt.Println(u.lives)
 	return true

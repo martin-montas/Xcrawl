@@ -3,30 +3,30 @@ package main
 import (
 	"flag"
 	"nock/Worker"
-	"nock/features"
+	"nock/utils"
 )
 
 func main() {
-	u := flag.String("u", "", "Name to greet")
-	v := flag.Bool("v", false, "Enable verbose output.")
+	url := flag.String("u", "", "Root domain/IP")
+	version := flag.Bool("v", false, "Enable verbose output.")
 	t := flag.Int("t", 3, "The amount of threads.")
 	files := flag.String("o", "", "Output file.")
 	flag.Parse()
-	features.Banner()
-	if *v {
-		features.PrintInfo("Verbose mode is on")
+	utils.Banner()
+	if *version {
+		utils.PrintInfo("Verbose mode is on")
 	}
-	if !*v {
-		features.PrintInfo("Verbose mode is off")
+	if !*version {
+		utils.PrintInfo("Verbose mode is off")
 	}
-	features.PrintInfo("Using threads given")
+	utils.PrintInfo("Using threads given")
 	if *files != "" {
-		features.PrintInfo("Will be used for saving")
+		utils.PrintInfo("Will be used for saving")
 	}
-	if *u != "" {
-		worker.Run(*u, *t, *v)
+	if *url != "" {
+		worker.Run(*url, *t, *version)
 	}
-	if *u == "" {
-		features.PrintErr("An url should be given")
+	if *url == "" {
+		utils.PrintErr("An url should be given")
 	}
 }
