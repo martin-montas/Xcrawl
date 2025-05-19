@@ -2,57 +2,31 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"nock/crawl"
-	"time"
+	"nock/Worker"
+	"nock/features"
 )
 
-
 func main() {
-	url := flag.String("u", "", "Name to greet")
-	verbose := flag.Bool("v", false, "Enable verbose output.")
-	thread := flag.Int("t", 3, "The amount of threads.")
+	u := flag.String("u", "", "Name to greet")
+	v := flag.Bool("v", false, "Enable verbose output.")
+	t := flag.Int("t", 3, "The amount of threads.")
 	files := flag.String("o", "", "Output file.")
 	flag.Parse()
-	fmt.Print("\033[34m")
-	fmt.Println(`
-
-		███╗   ██╗ ██████╗  ██████╗██╗  ██╗
-		████╗  ██║██╔═══██╗██╔════╝██║ ██╔╝
-		██╔██╗ ██║██║   ██║██║     █████╔╝ 
-		██║╚██╗██║██║   ██║██║     ██╔═██╗ 
-		██║ ╚████║╚██████╔╝╚██████╗██║  ██╗
-		╚═╝  ╚═══╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝
-
-		Nock Url/Param Crawler.
-		v0.0.1
-
-		coder: @github.com/martin-montas
-
-		`)
-	fmt.Print("\033[0m")
-	if *verbose {
-		fmt.Println(
-			time.Now().Format("2006-01-02 03:04:05 PM"), "[\033[32mINFO\033[0m] Verbose mode on")
+	features.Banner()
+	if *v {
+		features.PrintInfo("Verbose mode is on")
 	}
-	if !*verbose {
-		fmt.Println(
-			time.Now().Format("2006-01-02 03:04:05 PM"), "[\033[32mINFO\033[0m] Verbose mode off")
+	if !*v {
+		features.PrintInfo("Verbose mode is off")
 	}
-
-	fmt.Println(time.Now().Format("2006-01-02 03:04:05 PM"), "[\033[32mINFO\033[0m] using",
-		*thread,
-		"threads")
-
+	features.PrintInfo("Using threads given")
 	if *files != "" {
-		fmt.Println(time.Now().Format("2006-01-02 03:04:05 PM"), "[\033[32mINFO\033[0m]", *files, "will be used for saving") }
-
-	if *url != "" {
-		fmt.Println(time.Now().Format("2006-01-02 03:04:05 PM"), "[\033[32mINFO\033[0m]", *url, "Will be used as root domain.")
-		crawl.Run(*url)
-
+		features.PrintInfo("Will be used for saving")
 	}
-	if *url == "" {
-		fmt.Println("An URL should be given.")
+	if *u != "" {
+		worker.Run(*u, *t, *v)
+	}
+	if *u == "" {
+		features.PrintErr("An url should be given")
 	}
 }

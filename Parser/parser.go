@@ -1,4 +1,4 @@
-package crawl
+package parser
 
 import (
 	"fmt"
@@ -11,14 +11,7 @@ import (
 	"golang.org/x/net/html"
 )
 
-var t = []string{"a", "base", "area", "link"}
-
-func Run(d string) {
-	n := parse(d)
-	extract(*n, d)
-}
-
-func parse(n string) *html.Node {
+func Parse(n string) *html.Node {
 	r, err := http.Get(n)
 	fmt.Println(time.Now().Format("2006-01-02 03:04:05 PM"),
 		"[\033[32mINFO\033[0m]", n)
@@ -40,19 +33,18 @@ func parse(n string) *html.Node {
 	return d
 }
 
-func extract(n html.Node, d string) {
-	var links [] Link
+func Extract(n html.Node, d string) {
+	// var links []Link
 	for _, t := range t {
 		if n.Type == html.ElementNode && n.Data == t {
 			for _, attr := range n.Attr {
 				if attr.Key == "href" {
 					fmt.Println("Link:", attr.Val)
-
 					var obj Link
 					// find a way to display the whole path
 					// and use it as the path variable of the object above
 
-					obj.setOwner(attr.Val,true, attr.Val)
+					obj.setOwner(attr.Val, true, attr.Val)
 					links = append(links, obj)
 				}
 			}
