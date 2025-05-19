@@ -9,20 +9,21 @@ type Link struct {
 	text 	 string
 }
 
-func (u *Link) SetOwner(path string, lives bool) {
+func (u *Link) setOwner(path string, lives bool, text string) {
 	u.path = path
 	u.lives = lives
+	u.text = text
 
 }
-func (u *Link) Owner() Link {
+func (u *Link) owner() Link {
 	return *u
 }
 
-func (u *Link) PrintLink() {
+func (u *Link) printLink() {
 	fmt.Println(u.path)
 
 }
-func (u *Link) Printlives() bool {
+func (u *Link) printlives() bool {
 	fmt.Println(u.lives)
 	return true
 }

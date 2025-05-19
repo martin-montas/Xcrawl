@@ -47,11 +47,17 @@ func extract(n html.Node, d string) {
 			for _, attr := range n.Attr {
 				if attr.Key == "href" {
 					fmt.Println("Link:", attr.Val)
-					links = append(links, Link{path: attr.Val, text: attr.Val})
+
+					var obj Link
+					// find a way to display the whole path
+					// and use it as the path variable of the object above
+
+					obj.setOwner(attr.Val,true, attr.Val)
+					links = append(links, obj)
 				}
 			}
 			if n.FirstChild != nil && n.FirstChild.Type == html.TextNode {
-				fmt.Println("Text:", n.FirstChild.Data)
+				// fmt.Println("Text:", n.FirstChild.Data)
 			}
 		}
 	}
