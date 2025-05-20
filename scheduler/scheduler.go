@@ -9,22 +9,8 @@ import (
 
 var Links []worker.Link
 
-func IsPathAlive(url string) (bool, int) {
-	resp, err := http.Get(url)
 
-	if err != nil {
-		fmt.Printf("Domain is unreachable %s", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		return false, resp.StatusCode
-	} else {
-		return true, resp.StatusCode
-	}
-}
-
-func findDuplicates() []worker.Link {
+func FindDuplicates() []worker.Link {
 	var newLinks []worker.Link
 
 	sort.Slice(Links, func(i, j int) bool {
@@ -42,6 +28,22 @@ func findDuplicates() []worker.Link {
 	}
 	return newLinks
 }
+
+func IsPathAlive(url string) (bool, int) {
+	resp, err := http.Get(url)
+
+	if err != nil {
+		fmt.Printf("Domain is unreachable %s", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return false, resp.StatusCode
+	} else {
+		return true, resp.StatusCode
+	}
+}
+
 
 func AppendToLink(l *worker.Link) {
 	Links = append(Links, *l)

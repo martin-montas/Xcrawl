@@ -2,12 +2,12 @@ package parser
 
 import (
 	"fmt"
-	"golang.org/x/net/html"
-	"io"
 	"log"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
+	"golang.org/x/net/html"
 
 	"nock/scheduler"
 	"nock/utils"
