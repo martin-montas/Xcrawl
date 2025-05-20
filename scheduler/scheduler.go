@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"net/http"
 	"nock/worker"
+	"sort"
 )
 
 var Links []worker.Link
 
-func IsLinkAlive(url string) (bool, int) {
+func IsPathAlive(url string) (bool, int) {
 	resp, err := http.Get(url)
 
 	if err != nil {
@@ -23,12 +24,25 @@ func IsLinkAlive(url string) (bool, int) {
 	}
 }
 
-func AppendToLink(l *worker.Link) {
-	Links = append(Links, *l)
+func findDuplicates() []worker.Link {
+	var newLinks []worker.Link
+
+	sort.Slice(Links, func(i, j int) bool {
+		return Links[i].ID < Links[j].ID
+	})
+	for i, n1 := range Links {
+		for j, n2 := range Links {
+			if i == j {
+				continue
+			}
+			if n1.ID == n2.ID {
+				newLinks = append(newLinks, n1)
+			}
+		}
+	}
+	return newLinks
 }
 
-func IsDuplicate() bool {
-	// checks for duplicates in the worker.Link slice
-	// for now...
-	return true
+func AppendToLink(l *worker.Link) {
+	Links = append(Links, *l)
 }

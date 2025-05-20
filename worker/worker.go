@@ -6,11 +6,10 @@ import (
 
 type Link struct {
 	Alive      bool
-	Visited    bool
 	StatusCode int
 	Path       string
+	ID         int
 }
-
 
 func (l *Link) DisplayPath() {
 	fmt.Println(l.Path)

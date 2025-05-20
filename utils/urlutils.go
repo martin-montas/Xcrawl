@@ -5,19 +5,8 @@ package utils
 
 import (
 	"fmt"
-	"strings"
 	"time"
 )
-
-func PrintErr(s string) {
-	fmt.Println(
-		time.Now().Format("2006-01-02 03:04:05 PM"), "[\033[32mERR\033[0m] %s", s)
-
-}
-func PrintInfo(s string) {
-	fmt.Println(
-		time.Now().Format("2006-01-02 03:04:05 PM"), "[\033[33mINFO\033[0m] %s", s)
-}
 
 func Banner() {
 	fmt.Print("\033[34m")
@@ -40,12 +29,12 @@ func Banner() {
 
 }
 
-func FullURL(s string, domain string) string {
-	if strings.HasSuffix(s, "/") {
+func PrintErr(s string) {
+	fmt.Println(
+		time.Now().Format("2006-01-02 03:04:05 PM"), "[\033[31mERR\033[0m] %s", s)
 
-		return domain + s
-	} else {
-
-		return domain + "/" + s
-	}
+}
+func PrintInfo(s string) {
+	fmt.Println(
+		time.Now().Format("2006-01-02 03:04:05 PM"), "[\033[33mINFO\033[0m] %s", s)
 }

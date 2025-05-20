@@ -14,47 +14,47 @@ import (
 	"nock/worker"
 )
 
-func Extract(n html.Node, d string) {
+func Extract(node html.Node, domain string) {
 	var tags = [4]string{
 		"a",
 		"link",
 		"base",
 		"area",
 	}
-	base, err := url.Parse(d)
+	base, err := url.Parse(domain)
 
 	if err != nil {
 		fmt.Println("Invalid base URL")
 		return
 	}
-	for _, t := range tags {
-		if n.Type == html.ElementNode && n.Data == t {
-			for _, attr := range n.Attr {
+	id := 0
+	for _, tag := range tags {
+		if node.Type == html.ElementNode && node.Data == tag {
+			for _, attr := range node.Attr {
 				if attr.Key == "href" {
-					u, err := url.Parse(attr.Val)
-
+					id += 1
+					url, err := url.Parse(attr.Val)
 					if err != nil {
 						continue
 					}
-					Resolved := base.ResolveReference(u)
-					Alive, StatusCode := scheduler.IsLinkAlive(Resolved.String())
-
+					resolved := base.ResolveReference(url)
+					alive, statusCode := scheduler.IsPathAlive(resolved.String())
 					link := &worker.Link{
-						Alive:      Alive,
-						Visited:    true,
-						StatusCode: StatusCode,
-						Path:       Resolved.String(),
+						Alive:      alive,
+						StatusCode: statusCode,
+						Path:       resolved.String(),
+						ID:         id,
 					}
 					scheduler.AppendToLink(link)
 				}
 			}
-			if n.FirstChild != nil && n.FirstChild.Type == html.TextNode {
-				fmt.Println("Text:", n.FirstChild.Data)
+			if node.FirstChild != nil && node.FirstChild.Type == html.TextNode {
+				// fmt.Println("Text:", n.FirstChild.Data)
 			}
 		}
 	}
-	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		Extract(*c, d)
+	for c := node.FirstChild; c != nil; c = c.NextSibling {
+		Extract(*c, domain)
 	}
 }
 
