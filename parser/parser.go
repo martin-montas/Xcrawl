@@ -2,26 +2,26 @@ package parser
 
 import (
 	"fmt"
-	"golang.org/x/net/html"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
-
+	"golang.org/x/net/html"
+	
 	"nock/scheduler"
 	"nock/utils"
 	"nock/worker"
 )
 
-var tags = [4]string{
-	"a",
-	"link",
-	"base",
-	"area",
-}
 
 func Extract(n html.Node, d string) {
+	var tags = [4]string{
+		"a",
+		"link",
+		"base",
+		"area",
+	}
 	base, err := url.Parse(d)
 
 	if err != nil {
@@ -36,20 +36,20 @@ func Extract(n html.Node, d string) {
 					if err != nil {
 						continue
 					}
-					resolved := base.ResolveReference(u)
-					alive, statusCode := scheduler.IsLinkAlive(resolved.String())
-					if alive {
-						link := worker.Link{
-							path:       resolved.String(),
-							statusCode: statusCode,
-							visited:    true,
-							alive:      true,
-						}
+
+					Resolved := base.ResolveReference(u)
+					Alive, StatusCode := scheduler.IsLinkAlive(Resolved.String())
+					link  := &worker.Link {
+						Alive:			Alive,
+						Visited:			true,
+						StatusCode:		StatusCode,
+						Path:				Resolved.String(),
 					}
+					scheduler.AppendToLink(link)
 				}
 			}
 			if n.FirstChild != nil && n.FirstChild.Type == html.TextNode {
-				// fmt.Println("Text:", n.FirstChild.Data)
+				fmt.Println("Text:", n.FirstChild.Data)
 			}
 		}
 	}

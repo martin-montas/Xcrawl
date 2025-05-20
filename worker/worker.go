@@ -5,20 +5,19 @@ import (
 )
 
 type Link struct {
-	alive      bool
-	visited    bool
-	statusCode int
-
-	path string
+	Alive      	bool
+	Visited    	bool
+	StatusCode 	int
+	Path 			string
 }
 
 func (l *Link) setOwner(alive bool, path string, statusCode int, visited bool) {
-	l.alive = alive
-	l.path = path
-	l.visited = visited
-	l.statusCode = statusCode
+	l.Alive = alive
+	l.Path = path
+	l.Visited = visited
+	l.StatusCode = statusCode
 }
 
 func (l *Link) DisplayPath() {
-	fmt.Println(l.path)
+	fmt.Println(l.Path)
 }

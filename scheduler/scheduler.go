@@ -6,7 +6,7 @@ import (
 	"nock/worker"
 )
 
-var links []worker.Link
+var Links []worker.Link
 
 func IsLinkAlive(url string) (bool, int) {
 	resp, err := http.Get(url)
@@ -23,9 +23,8 @@ func IsLinkAlive(url string) (bool, int) {
 	}
 }
 
-func appendToLink(l *worker.Link) {
-	links = append(links, *l)
-
+func AppendToLink(l *worker.Link) {
+	Links = append(Links, *l)
 }
 
 func IsDuplicate() bool {
