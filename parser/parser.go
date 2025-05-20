@@ -1,19 +1,20 @@
 package parser
 
 import (
+	"fmt"
+	"golang.org/x/net/html"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
-	"golang.org/x/net/html"
 
+	"nock/scheduler"
 	"nock/utils"
 	"nock/worker"
-	"nock/scheduler"
 )
 
-var tags = [4]string {
+var tags = [4]string{
 	"a",
 	"link",
 	"base",
@@ -21,20 +22,29 @@ var tags = [4]string {
 }
 
 func Extract(n html.Node, d string) {
+	base, err := url.Parse(d)
+
+	if err != nil {
+		fmt.Println("Invalid base URL")
+		return
+	}
 	for _, t := range tags {
 		if n.Type == html.ElementNode && n.Data == t {
 			for _, attr := range n.Attr {
 				if attr.Key == "href" {
-					utils.FullURL()
-
-
-					// scheduler.IsLinkAlive()
-
-
-					link := worker.Link {
-						text: 	attr.Val,
-						visited: true,
-						parent: 	*n.Parent,
+					u, err := url.Parse(attr.Val)
+					if err != nil {
+						continue
+					}
+					resolved := base.ResolveReference(u)
+					alive, statusCode := scheduler.IsLinkAlive(resolved.String())
+					if alive {
+						link := worker.Link{
+							path:       resolved.String(),
+							statusCode: statusCode,
+							visited:    true,
+							alive:      true,
+						}
 					}
 				}
 			}
@@ -68,4 +78,3 @@ func Parse(n string) *html.Node {
 	}
 	return d
 }
-

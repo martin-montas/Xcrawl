@@ -3,10 +3,12 @@ package scheduler
 import (
 	"fmt"
 	"net/http"
-	// "nock/worker"
+	"nock/worker"
 )
 
-func IsLinkAlive(url string) bool {
+var links []worker.Link
+
+func IsLinkAlive(url string) (bool, int) {
 	resp, err := http.Get(url)
 
 	if err != nil {
@@ -15,13 +17,19 @@ func IsLinkAlive(url string) bool {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return false
+		return false, resp.StatusCode
 	} else {
-		return true
+		return true, resp.StatusCode
 	}
 }
 
+func appendToLink(l *worker.Link) {
+	links = append(links, *l)
+
+}
+
 func IsDuplicate() bool {
+	// checks for duplicates in the worker.Link slice
 	// for now...
 	return true
 }
