@@ -1,2 +1,2 @@
 # Knock
-URL/Param Scraper Written in Go.
+URL scraper/crawler Written in Go.
