@@ -47,7 +47,7 @@ func extractLinks(doc html.Node) {
 		if doc.Type != html.ElementNode || doc.Data != tag {
 			continue
 		}
-		 processLinks(doc)
+		processLinks(doc)
 
 	}
 	for c := doc.FirstChild; c != nil; c = c.NextSibling {
@@ -56,16 +56,15 @@ func extractLinks(doc html.Node) {
 }
 
 func processLinks(doc html.Node) {
-			for _, attr := range doc.Attr {
-				if attr.Key == "href" {
-					fmt.Println("Link:", attr.Val)
-				}
-			}
-			if doc.FirstChild != nil && doc.FirstChild.Type == html.TextNode {
-				fmt.Println("Text:", doc.FirstChild.Data)
-			}
+	for _, attr := range doc.Attr {
+		if attr.Key == "href" {
+			fmt.Println("Link:", attr.Val)
+		}
 	}
-
+	if doc.FirstChild != nil && doc.FirstChild.Type == html.TextNode {
+		fmt.Println("Text:", doc.FirstChild.Data)
+	}
+}
 
 func GetLinks(s string, thread int) {
 	n := parse(s, thread)
