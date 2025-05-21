@@ -2,11 +2,11 @@ package main
 
 import (
 	"nock/parser"
+	// "nock/utils"
 )
 
-func run(d string, t int, v bool) {
-	n := parser.Parse(d, t)
-	if v {
-		parser.Extract(*n, d)
+func run(domain string, thread int, verbose bool) {
+	if verbose {
+		parser.GetLinks(domain, thread)
 	}
 }

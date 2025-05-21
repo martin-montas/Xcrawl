@@ -9,7 +9,6 @@ import (
 
 var Links []worker.Link
 
-
 func FindDuplicates() []worker.Link {
 	var newLinks []worker.Link
 
@@ -43,7 +42,6 @@ func IsPathAlive(url string) (bool, int) {
 		return true, resp.StatusCode
 	}
 }
-
 
 func AppendToLink(l *worker.Link) {
 	Links = append(Links, *l)

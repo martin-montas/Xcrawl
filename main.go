@@ -2,12 +2,13 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"nock/utils"
 )
 
 func main() {
 	url := flag.String("u", "", "Root domain/IP")
-	verbose := flag.Bool("v", false, "Enable verbose output.")
+	verbose := flag.Bool("v", true, "Enable verbose output.")
 	thread := flag.Int("t", 3, "The amount of threads.")
 	files := flag.String("o", "", "Output file.")
 	flag.Parse()
@@ -23,6 +24,7 @@ func main() {
 		utils.PrintInfo("Will be used for saving")
 	}
 	if *url != "" {
+		fmt.Println("==== test ====")
 		run(*url, *thread, *verbose)
 	}
 	if *url == "" {

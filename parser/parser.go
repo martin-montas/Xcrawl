@@ -2,79 +2,72 @@ package parser
 
 import (
 	"fmt"
-	"log"
-	"io"
-	"net/http"
-	"net/url"
-	"strings"
 	"golang.org/x/net/html"
+	"io"
+	"log"
+	"net/http"
+	// "net/url"
+	"strings"
 
-	"nock/scheduler"
+	// "nock/scheduler"
+	// "nock/worker"
 	"nock/utils"
-	"nock/worker"
 )
 
-func Extract(node html.Node, domain string) {
-	var tags = [4]string{
+func parse(domain string, thread int) html.Node {
+	resp, err := http.Get(domain)
+	fmt.Printf("%d", thread)
+	utils.PrintInfo("querying the domain")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	body := string(b)
+	n, err := html.Parse(strings.NewReader(body))
+	if err != nil {
+		log.Fatal(err)
+	}
+	return *n
+}
+
+func extractLinks(doc html.Node) {
+	var tags = []string{
 		"a",
 		"link",
 		"base",
 		"area",
 	}
-	base, err := url.Parse(domain)
-
-	if err != nil {
-		fmt.Println("Invalid base URL")
-		return
-	}
-	id := 0
 	for _, tag := range tags {
-		if node.Type == html.ElementNode && node.Data == tag {
-			for _, attr := range node.Attr {
-				if attr.Key == "href" {
-					id += 1
-					url, err := url.Parse(attr.Val)
-					if err != nil {
-						continue
-					}
-					resolved := base.ResolveReference(url)
-					alive, statusCode := scheduler.IsPathAlive(resolved.String())
-					link := &worker.Link{
-						Alive:      alive,
-						StatusCode: statusCode,
-						Path:       resolved.String(),
-						ID:         id,
-					}
-					scheduler.AppendToLink(link)
-				}
-			}
-			if node.FirstChild != nil && node.FirstChild.Type == html.TextNode {
-				// fmt.Println("Text:", n.FirstChild.Data)
-			}
+		if doc.Type != html.ElementNode || doc.Data != tag {
+			continue
 		}
+		 processLinks(doc)
+
 	}
-	for c := node.FirstChild; c != nil; c = c.NextSibling {
-		Extract(*c, domain)
+	for c := doc.FirstChild; c != nil; c = c.NextSibling {
+		extractLinks(*c)
 	}
 }
 
-func Parse(n string, t int) *html.Node {
-	r, err := http.Get(n)
-	utils.PrintInfo(n)
+func processLinks(doc html.Node) {
+			for _, attr := range doc.Attr {
+				if attr.Key == "href" {
+					fmt.Println("Link:", attr.Val)
+				}
+			}
+			if doc.FirstChild != nil && doc.FirstChild.Type == html.TextNode {
+				fmt.Println("Text:", doc.FirstChild.Data)
+			}
+	}
 
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer r.Body.Close()
 
-	b, err := io.ReadAll(r.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	body := string(b)
-	d, err := html.Parse(strings.NewReader(body))
-	if err != nil {
-		log.Fatal(err)
-	}
-	return d
+func GetLinks(s string, thread int) {
+	n := parse(s, thread)
+	extractLinks(n)
 }
