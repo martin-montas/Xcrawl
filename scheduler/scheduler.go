@@ -3,8 +3,9 @@ package scheduler
 import (
 	"fmt"
 	"net/http"
-	"nock/worker"
 	"sort"
+
+	"nock/worker"
 )
 
 var Links []worker.Link

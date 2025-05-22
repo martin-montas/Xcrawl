@@ -6,8 +6,17 @@ import (
 )
 
 func run(domain string, thread int, verbose bool) {
+	utils.PrintInfo("using the threads given")
 	if verbose {
 		utils.PrintInfo("verbose set to true")
-		parser.GetLinks(domain, thread)
+
+		for {
+			parser.Crawl(domain)
+		}
+
+	} else {
+		utils.PrintInfo("verbose set to false")
+
 	}
+
 }

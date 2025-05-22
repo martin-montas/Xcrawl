@@ -14,10 +14,10 @@ import (
 	"nock/utils"
 )
 
-func parse(domain string, thread int) (html.Node , url.URL) {
-	response, err := http.Get(domain)
+var t int
 
-	fmt.Printf("test: %d", thread)
+func Crawl(domain string)  {
+	response, err := http.Get(domain)
 	utils.PrintInfo("querying the domain")
 
 	if err != nil {
@@ -40,10 +40,11 @@ func parse(domain string, thread int) (html.Node , url.URL) {
 		log.Fatal(err)
 	}
 
-	return *n, *base
+	// return *n, *base
+	ExtractLinks(*n, *base)
 }
 
-func extractLinks(doc html.Node, baseUrl url.URL) {
+func ExtractLinks(doc html.Node, baseUrl url.URL) {
 	var tags = []string{
 		"a",
 		"link",
@@ -58,11 +59,11 @@ func extractLinks(doc html.Node, baseUrl url.URL) {
 
 	}
 	for c := doc.FirstChild; c != nil; c = c.NextSibling {
-		extractLinks(*c, baseUrl)
+		ExtractLinks(*c, baseUrl)
 	}
 }
 
-func processLinks(n html.Node, baseUrl url.URL) {
+func processLinks(n html.Node, baseUrl url.URL)  {
 	for i, attr := range n.Attr {
 		if attr.Key == "href" {
 			// fmt.Println("Link:", attr.Val)
@@ -78,8 +79,9 @@ func processLinks(n html.Node, baseUrl url.URL) {
 				StatusCode:  	statusCode,
 				Path:       	resolved.String(),
 				ID: 				i,
+				Node:				n ,
 			}
-			worker.Links = append(worker.Links, l)
+			scheduler.AppendToLink(&l)
 	}
 	if n.FirstChild != nil && n.FirstChild.Type == html.TextNode {
 		fmt.Println("Text:", n.FirstChild.Data)
@@ -88,6 +90,4 @@ func processLinks(n html.Node, baseUrl url.URL) {
 }
 
 func GetLinks(s string, thread int) {
-	n, baseUrl := parse(s, thread)
-	extractLinks(n, baseUrl)
 }

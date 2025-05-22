@@ -2,6 +2,7 @@ package worker
 
 import (
 	"fmt"
+	"golang.org/x/net/html"
 )
 
 type Link struct {
@@ -9,6 +10,8 @@ type Link struct {
 	StatusCode int
 	Path       string
 	ID         int
+
+	Node 			html.Node
 }
 
 var Links []Link
@@ -17,3 +20,4 @@ var Links []Link
 func (l *Link) DisplayPath() {
 	fmt.Println(l.Path)
 }
+
