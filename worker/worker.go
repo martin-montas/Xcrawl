@@ -11,6 +11,9 @@ type Link struct {
 	ID         int
 }
 
+var Links []Link
+
+
 func (l *Link) DisplayPath() {
 	fmt.Println(l.Path)
 }

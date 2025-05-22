@@ -10,17 +10,17 @@ import (
 var Links []worker.Link
 
 func IsPathAlive(url string) (bool, int) {
-	resp, err := http.Get(url)
+	response, err := http.Get(url)
 
 	if err != nil {
 		fmt.Printf("Domain is unreachable %s", err)
 	}
-	defer resp.Body.Close()
+	defer response.Body.Close()
 
-	if resp.StatusCode != 200 {
-		return false, resp.StatusCode
+	if response.StatusCode != 200 {
+		return false, response.StatusCode
 	} else {
-		return true, resp.StatusCode
+		return true, response.StatusCode
 	}
 }
 
