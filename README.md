@@ -15,13 +15,10 @@ Usage:
 ```bash
 $ nock -help                # print usage
 $ nock -mode=crawl -u=http://domain.com # crawl mode
-```
-
-Soon to be:
-
-```bash
 $ nock -mode=dir -w=/tmp/worlist.txt -u=http://domain.com # dir brute force mode
 ```
+
+Will continue to be updated for extra features
 
 * [Github](https://github.com/martin-montas/nock)
 
