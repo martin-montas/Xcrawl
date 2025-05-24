@@ -36,7 +36,7 @@ func (l *Link) DisplayInfo() {
 	} else {
 		statusColor = statusCodeColored[3]
 	}
-	fmt.Printf("%s[%d]%s : %s \n",statusColor,l.StatusCode, statusCodeColored[4], l.Path)
+	fmt.Printf("%s[%d]%s: %s \n",statusColor,l.StatusCode, statusCodeColored[4], l.Path)
 }
 
 var Nodes 	[]html.Node

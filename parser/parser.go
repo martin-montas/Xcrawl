@@ -1,44 +1,49 @@
 package parser
 
 import (
-	// "fmt"
-	"golang.org/x/net/html"
 	"io"
+	"sync"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
 
+	"golang.org/x/net/html"
 	"nock/scheduler"
 )
 
 
-func Crawl(domain string) {
+func Crawl(domain string, wg *sync.WaitGroup) {
+	defer wg.Done()
+
 	response, err := http.Get(domain)
-	// utils.PrintInfo("querying the domain")
 
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Error fetching %s: %v\n", domain, err)
 	}
 	defer response.Body.Close()
 
 	b, err := io.ReadAll(response.Body)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Error reading body from %s: %v\n", domain, err)
+		return
 	}
 	body := string(b)
 	n, err := html.Parse(strings.NewReader(body))
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Error parsing HTML from %s: %v\n", domain, err)
+		return
 	}
 
 	base, err := url.Parse(domain)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Error parsing base URL %s: %v\n", domain, err)
+		return
 	}
 
-	ExtractLinks(*n,*base)
+	ExtractLinks(*n,*base) 
 }
+
 
 func ExtractLinks(doc html.Node, baseUrl url.URL) {
 	var tags = []string {

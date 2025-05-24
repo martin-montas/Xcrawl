@@ -8,7 +8,6 @@ import (
 
 func main() {
 	url := flag.String("u", "", "Root domain/IP")
-	thread := flag.Int("t", 3, "The amount of threads.")
 	files := flag.String("o", "", "Output file.")
 	flag.Parse()
 	utils.Banner()
@@ -18,7 +17,7 @@ func main() {
 		utils.PrintInfo("nothing will be used for saving", "")
 	}
 	if *url != "" {
-		run(*url, *thread)
+		run(*url)
 	} else {
 		utils.PrintErr("An url should be given", "")
 	}

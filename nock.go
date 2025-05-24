@@ -1,22 +1,23 @@
 package main
-
 import (
-	"fmt"
 
 	"nock/parser"
 	"nock/scheduler"
+	"sync"
 
 )
 
-func run(domain string, thread int) {
-	// utils.PrintInfo("will be using %s threads ", strconv.Itoa(thread))
-	fmt.Println(thread)
-
+func run(domain string) {
 	// crawls the initial site
-	parser.Crawl(domain)
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go parser.Crawl(domain, &wg)
+	wg.Wait()
 
 	for _, l := range scheduler.Links {
-   	parser.Crawl(l.Path)
+		wg.Add(1)
+   	go parser.Crawl(l.Path, &wg)
 	}
+	wg.Wait()
 }
 
