@@ -1,22 +1,22 @@
 package main
 
 import (
+	"fmt"
+
 	"nock/parser"
-	"nock/utils"
+	"nock/scheduler"
+
 )
 
-func run(domain string, thread int, verbose bool) {
-	utils.PrintInfo("using the threads given")
-	if verbose {
-		utils.PrintInfo("verbose set to true")
+func run(domain string, thread int) {
+	// utils.PrintInfo("will be using %s threads ", strconv.Itoa(thread))
+	fmt.Println(thread)
 
-		for {
-			parser.Crawl(domain)
-		}
+	// crawls the initial site
+	parser.Crawl(domain)
 
-	} else {
-		utils.PrintInfo("verbose set to false")
-
+	for _, l := range scheduler.Links {
+   	parser.Crawl(l.Path)
 	}
-
 }
+

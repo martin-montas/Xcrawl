@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"fmt"
+	// "fmt"
 	"golang.org/x/net/html"
 	"io"
 	"log"
@@ -10,15 +10,12 @@ import (
 	"strings"
 
 	"nock/scheduler"
-	"nock/worker"
-	"nock/utils"
 )
 
-var t int
 
-func Crawl(domain string)  {
+func Crawl(domain string) {
 	response, err := http.Get(domain)
-	utils.PrintInfo("querying the domain")
+	// utils.PrintInfo("querying the domain")
 
 	if err != nil {
 		log.Fatal(err)
@@ -40,12 +37,11 @@ func Crawl(domain string)  {
 		log.Fatal(err)
 	}
 
-	// return *n, *base
-	ExtractLinks(*n, *base)
+	ExtractLinks(*n,*base)
 }
 
 func ExtractLinks(doc html.Node, baseUrl url.URL) {
-	var tags = []string{
+	var tags = []string {
 		"a",
 		"link",
 		"base",
@@ -55,6 +51,10 @@ func ExtractLinks(doc html.Node, baseUrl url.URL) {
 		if doc.Type != html.ElementNode || doc.Data != tag {
 			continue
 		}
+		if whichSection(&doc) == "head" {
+			continue
+
+		}
 		processLinks(doc, baseUrl)
 
 	}
@@ -63,31 +63,47 @@ func ExtractLinks(doc html.Node, baseUrl url.URL) {
 	}
 }
 
+func whichSection(n *html.Node) string {
+	// returns if its a head html.Node value
+	// or the body 
+	for p := n.Parent; p != nil; p = p.Parent {
+		if p.Type == html.ElementNode {
+			if p.Data == "head" {
+				return "head"
+			}
+			if p.Data == "body" {
+				return "body"
+			}
+		}
+	}
+	return "unknown"
+}
+
 func processLinks(n html.Node, baseUrl url.URL)  {
 	for i, attr := range n.Attr {
 		if attr.Key == "href" {
-			// fmt.Println("Link:", attr.Val)
 			url, err := url.Parse(attr.Val)
 			if err != nil {
 				continue
 			}
-			resolved := baseUrl.ResolveReference(url)
-			alive, statusCode := scheduler.IsPathAlive(resolved.String())
+			resolved 			:= baseUrl.ResolveReference(url)
 
-			l := worker.Link {
-				Alive:      	alive,
-				StatusCode:  	statusCode,
-				Path:       	resolved.String(),
-				ID: 				i,
-				Node:				n ,
-			}
-			scheduler.AppendToLink(&l)
-	}
-	if n.FirstChild != nil && n.FirstChild.Type == html.TextNode {
-		fmt.Println("Text:", n.FirstChild.Data)
+			if resolved.Host == baseUrl.Host || resolved.Host == "" {
+				alive, statusCode := scheduler.IsPathAlive(resolved.String())
+				l := scheduler.Link {
+					Alive:      	alive,
+					StatusCode:  	statusCode,
+					Path:       	resolved.String(),
+					ID: 				i,
+				}
+				l.DisplayInfo()
+				scheduler.AppendToLinks(&l)
+
+			} 
+		}
+		if n.FirstChild != nil && n.FirstChild.Type == html.TextNode {
+			// fmt.Println("Text:", n.FirstChild.Data)
 		}
 	}
 }
 
-func GetLinks(s string, thread int) {
-}
