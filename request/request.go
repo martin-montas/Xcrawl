@@ -47,43 +47,4 @@ func Send(domain string, ch chan Result, wg *sync.WaitGroup) {
 	ch <- Result{Node: n, Base: base}
 }
 
-func processLinks(n html.Node, baseUrl url.URL) {
-	for i, attr := range n.Attr {
-		if attr.Key == "href" {
-			url, err := url.Parse(attr.Val)
-			if err != nil {
-				continue
-			}
-			resolved := baseUrl.ResolveReference(url)
 
-			if resolved.Host == baseUrl.Host || resolved.Host == "" {
-				alive, statusCode := IsPathAlive(resolved.String())
-				l := Link{
-					Alive:      alive,
-					StatusCode: statusCode,
-					Path:       resolved.String(),
-					ID:         i,
-				}
-				l.DisplayInfo()
-				AppendToLinks(&l)
-
-			}
-		}
-		if n.FirstChild != nil && n.FirstChild.Type == html.TextNode {
-		}
-	}
-}
-
-func whichSection(n *html.Node) string {
-	for p := n.Parent; p != nil; p = p.Parent {
-		if p.Type == html.ElementNode {
-			if p.Data == "head" {
-				return "head"
-			}
-			if p.Data == "body" {
-				return "body"
-			}
-		}
-	}
-	return "unknown"
-}
