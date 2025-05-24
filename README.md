@@ -14,10 +14,14 @@ Usage:
 
 ```bash
 $ nock -help                # print usage
-$ nock -mode=crawl -u=http://192.168.40.135:80 # crawl mode
-$ nock -mode=dir -w=/tmp/worlist.txt -u=http://192.168.40.135:80 # dir brute force mode
+$ nock -mode=crawl -u=http://domain.com # crawl mode
 ```
 
+Soon to be:
+
+```bash
+$ nock -mode=dir -w=/tmp/worlist.txt -u=http://domain.com # dir brute force mode
+```
 
 * [Github](https://github.com/martin-montas/nock)
 
