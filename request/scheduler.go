@@ -1,26 +1,26 @@
-package scheduler
+package request
 
 import (
 	"fmt"
 	"net/http"
-	"golang.org/x/net/html"
 
+	"golang.org/x/net/html"
 )
 
 type Link struct {
-	Alive      	bool
-	StatusCode 	int
-	Path       	string
-	ID         	int
+	Alive      bool
+	StatusCode int
+	Path       string
+	ID         int
 }
 
 func (l *Link) DisplayInfo() {
-	var statusCodeColored = [5]string {
-		"\033[34m", 		// Blue
-		"\033[33m", 		// Yellow
-		"\033[32m", 		// Green
-		"\033[31m", 		// Red
-		"\033[0m",			// Reset
+	var statusCodeColored = [5]string{
+		"\033[34m", // Blue
+		"\033[33m", // Yellow
+		"\033[32m", // Green
+		"\033[31m", // Red
+		"\033[0m",  // Reset
 	}
 
 	var statusColor string
@@ -36,11 +36,11 @@ func (l *Link) DisplayInfo() {
 	} else {
 		statusColor = statusCodeColored[3]
 	}
-	fmt.Printf("%s[%d]%s: %s \n",statusColor,l.StatusCode, statusCodeColored[4], l.Path)
+	fmt.Printf("%s[%d]%s: %s \n", statusColor, l.StatusCode, statusCodeColored[4], l.Path)
 }
 
-var Nodes 	[]html.Node
-var Links 	[]Link
+var Nodes []html.Node
+var Links []Link
 
 func IsPathAlive(url string) (bool, int) {
 	response, err := http.Get(url)
@@ -52,7 +52,7 @@ func IsPathAlive(url string) (bool, int) {
 
 	if response.StatusCode != 200 {
 		return false, response.StatusCode
-	} 
+	}
 	return true, response.StatusCode
 }
 
@@ -64,6 +64,12 @@ func AppendToLinks(l *Link) {
 	Links = append(Links, *l)
 }
 
-func ReturnNodes() []html.Node {
+func GetNodes() []html.Node {
 	return Nodes
 }
+
+
+func GetLinks() []Link {
+	return Links
+}
+

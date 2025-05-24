@@ -6,7 +6,6 @@ package utils
 import (
 	"fmt"
 	"time"
-
 )
 
 func Banner() {
@@ -30,16 +29,12 @@ func Banner() {
 
 }
 
-func PrintErr(s , value string) {
+func PrintErr(s, value string) {
 	fmt.Printf(
 		time.Now().Format("2006-01-02 03:04:05 PM"), "[\033[31mERR\033[0m] %s \n", value)
 
 }
-func PrintInfo(s , value string) {
+func PrintInfo(s, value string) {
 	fmt.Printf(
 		time.Now().Format("2006-01-02 03:04:05 PM"), "[\033[33mINFO\033[0m] %s\n", value)
 }
-
-
-
-
