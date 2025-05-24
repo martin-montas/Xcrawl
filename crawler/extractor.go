@@ -57,7 +57,7 @@ func processLinks(n html.Node, baseUrl url.URL) {
 			resolved := baseUrl.ResolveReference(url)
 
 			if resolved.Host == baseUrl.Host || resolved.Host == "" {
-				alive, statusCode := request.IsPathAlive(resolved.String())
+				alive, statusCode := request.CheckStatuscodeFromURL(resolved.String())
 				l := request.Link{
 					Alive:      alive,
 					StatusCode: statusCode,

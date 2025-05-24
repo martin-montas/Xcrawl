@@ -2,6 +2,7 @@ package request
 
 import (
 	"io"
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -11,12 +12,26 @@ import (
 	"golang.org/x/net/html"
 )
 
-type Result struct {
+type Link struct {
+	Alive      bool
+	StatusCode int
+	Path       string
+	ID         int
+}
+
+type Tag struct {
 	Node *html.Node
 	Base *url.URL
 }
 
-func Send(domain string, ch chan Result, wg *sync.WaitGroup) {
+type Status struct {
+	Alive      bool
+	StatusCode int
+}
+
+var Links []Link
+
+func  Send(domain string, ch chan Tag, wg *sync.WaitGroup) {
 	defer wg.Done()
 	response, err := http.Get(domain)
 
@@ -43,8 +58,31 @@ func Send(domain string, ch chan Result, wg *sync.WaitGroup) {
 		log.Printf("Error parsing base URL %s: %v\n", domain, err)
 		return
 	}
-
-	ch <- Result{Node: n, Base: base}
+	ch <- Tag{Node: n, Base: base}
 }
 
+func GetStatuscodeFromURL(u string, ch chan Status, wg *sync.WaitGroup)  {
+	defer wg.Done()
+	response, err := http.Get(u)
+	if err != nil {
+		fmt.Printf("Domain is unreachable %s", err)
+	}
+	defer response.Body.Close()
 
+	if response.StatusCode != 200 {
+		ch <- Status{Alive: true, StatusCode: response.StatusCode}
+	}
+
+	ch <- Status{Alive: true, StatusCode: response.StatusCode}
+}	
+
+func GetLinkStatus(u string, ch chan int, wg *sync.WaitGroup)  {
+	defer wg.Done()
+	response, err := http.Get(u)
+	if err != nil {
+		fmt.Printf("Domain is unreachable %s", err)
+	}
+	defer response.Body.Close()
+
+	 ch <-response.StatusCode
+}

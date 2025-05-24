@@ -10,13 +10,27 @@ import (
 	"nock/utils"
 )
 
+const (
+	Version = "1.0.0"
+)
+
+
+
 func main() {
-	url := flag.String("u", "", "Initial site")
-	mode := flag.String("mode", "crawl", "Mode: dir | crawl")
-	w := flag.String("w", "", "Wordlist")
+	url 	:= flag.String("u", "", "Initial site")
+	mode 	:= flag.String("mode", "crawl", "Mode: dir | crawl")
+	w 		:= flag.String("w", "", "Wordlist")
+	version := flag.Bool("v", false, "Version")
+
 
 	flag.Parse()
 	utils.Banner()
+
+	if *version {
+		fmt.Printf("Version: %s\n", Version)
+		os.Exit(0)
+	}
+
 
 	switch *mode {
 	case "dir":
