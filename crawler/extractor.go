@@ -1,8 +1,8 @@
 package crawler
 
 import (
-	"net/url"
 	"golang.org/x/net/html"
+	"net/url"
 
 	"nock/request"
 )

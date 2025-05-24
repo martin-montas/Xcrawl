@@ -3,8 +3,6 @@ package request
 import (
 	"fmt"
 	"net/http"
-
-	"golang.org/x/net/html"
 )
 
 type Link struct {
@@ -39,7 +37,6 @@ func (l *Link) DisplayInfo() {
 	fmt.Printf("%s[%d]%s: %s \n", statusColor, l.StatusCode, statusCodeColored[4], l.Path)
 }
 
-var Nodes []html.Node
 var Links []Link
 
 func IsPathAlive(url string) (bool, int) {
@@ -56,20 +53,10 @@ func IsPathAlive(url string) (bool, int) {
 	return true, response.StatusCode
 }
 
-func AppendToNode(n *html.Node) {
-	Nodes = append(Nodes, *n)
-}
-
 func AppendToLinks(l *Link) {
 	Links = append(Links, *l)
 }
 
-func GetNodes() []html.Node {
-	return Nodes
-}
-
-
 func GetLinks() []Link {
 	return Links
 }
-

@@ -2,11 +2,11 @@ package request
 
 import (
 	"io"
-	"sync"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 
 	"golang.org/x/net/html"
 )
@@ -18,7 +18,6 @@ type Result struct {
 
 func Send(domain string, ch chan Result, wg *sync.WaitGroup) {
 	defer wg.Done()
-
 	response, err := http.Get(domain)
 
 	if err != nil {
@@ -46,23 +45,6 @@ func Send(domain string, ch chan Result, wg *sync.WaitGroup) {
 	}
 
 	ch <- Result{Node: n, Base: base}
-
-}
-
-func whichSection(n *html.Node) string {
-	// returns if its a head html.Node value
-	// or the body
-	for p := n.Parent; p != nil; p = p.Parent {
-		if p.Type == html.ElementNode {
-			if p.Data == "head" {
-				return "head"
-			}
-			if p.Data == "body" {
-				return "body"
-			}
-		}
-	}
-	return "unknown"
 }
 
 func processLinks(n html.Node, baseUrl url.URL) {
@@ -90,4 +72,18 @@ func processLinks(n html.Node, baseUrl url.URL) {
 		if n.FirstChild != nil && n.FirstChild.Type == html.TextNode {
 		}
 	}
+}
+
+func whichSection(n *html.Node) string {
+	for p := n.Parent; p != nil; p = p.Parent {
+		if p.Type == html.ElementNode {
+			if p.Data == "head" {
+				return "head"
+			}
+			if p.Data == "body" {
+				return "body"
+			}
+		}
+	}
+	return "unknown"
 }
