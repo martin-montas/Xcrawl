@@ -5,8 +5,6 @@ import (
 	"net/http"
 )
 
-
-
 func (l *Link) DisplayInfo() {
 	var (
 		statusCodeColored = [5]string{

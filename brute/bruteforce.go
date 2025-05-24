@@ -2,11 +2,9 @@ package brute
 
 import (
 	"bufio"
-	// "time"
 	"sync"
 	"fmt"
 	"os"
-	// "strconv"
 	"nock/request"
 )
 
