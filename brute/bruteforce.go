@@ -6,7 +6,8 @@ import (
 	"sync"
 	"fmt"
 	"os"
-	"crawlx/request"
+	"time"
+	"xcrawl/request"
 )
 
 func Run(wordlist string, domain string) {
@@ -33,7 +34,7 @@ func Run(wordlist string, domain string) {
 		if res != 200 {
 			continue
 		}
-		fmt.Printf("\033[32m[%d]\033[0m: %s \n", res, string(domain+scanner.Text()))
+		fmt.Printf("%s \033[32m[%d]\033[0m: %s \n", time.Now().Format("2006-01-02 03:04:05 PM"), res, string(domain+scanner.Text()))
 		continue
 	}
 	if err := scanner.Err(); err != nil {

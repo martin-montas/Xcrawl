@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"crawlx/brute"
-	"crawlx/crawler"
-	"crawlx/utils"
+	"xcrawl/brute"
+	"xcrawl/crawler"
+	"xcrawl/utils"
 )
 
 const (

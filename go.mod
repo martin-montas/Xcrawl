@@ -1,4 +1,4 @@
-module crawlx
+module xcrawl
 
 go 1.24.1
 
