@@ -20,9 +20,7 @@ func Run(wordlist string, domain string) {
 	scanner := bufio.NewScanner(f)
 	wg := sync.WaitGroup{}
 	ch2 := make(chan int)
-	if strings.HasSuffix(domain, "/") {
-		domain = domain
-	} else {
+	if !strings.HasSuffix(domain, "/") {
 		domain = domain + "/"
 	}
 	fmt.Printf("test %s\n", domain)
