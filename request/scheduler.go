@@ -3,6 +3,7 @@ package request
 import (
 	"fmt"
 	"net/http"
+	"os"
 )
 
 func (l *Link) DisplayInfo() {
@@ -35,7 +36,8 @@ func CheckStatuscodeFromURL(u string) (bool, int) {
 	response, err := http.Get(u)
 
 	if err != nil {
-		fmt.Printf("Domain is unreachable %s", err)
+		fmt.Printf("Domain is unreachable %s\n", u)
+		os.Exit(1)
 	}
 	defer response.Body.Close()
 

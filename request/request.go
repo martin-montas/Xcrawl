@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"strings"
 	"sync"
+	"os"
 
 	"golang.org/x/net/html"
 )
@@ -31,32 +32,32 @@ type Status struct {
 
 var Links []Link
 
-func  Send(domain string, ch chan Tag, wg *sync.WaitGroup) {
+func Send(domain string, ch chan Tag, wg *sync.WaitGroup) {
 	defer wg.Done()
 	response, err := http.Get(domain)
 
 	if err != nil {
-		log.Printf("Error fetching %s: %v\n", domain, err)
-		return
+		fmt.Printf("Domain is unreachable %s:\n", domain)
+		os.Exit(1)
 	}
 	defer response.Body.Close()
 
 	b, err := io.ReadAll(response.Body)
 	if err != nil {
-		log.Printf("Error reading body from %s: %v\n", domain, err)
-		return
+		log.Printf("Error reading body from %s:\n", domain)
+		os.Exit(1)
 	}
 	body := string(b)
 	n, err := html.Parse(strings.NewReader(body))
 	if err != nil {
-		log.Printf("Error parsing HTML from %s: %v\n", domain, err)
-		return
+		log.Printf("Error parsing HTML from %s:\n", domain)
+		os.Exit(1)
 	}
 
 	base, err := url.Parse(domain)
 	if err != nil {
-		log.Printf("Error parsing base URL %s: %v\n", domain, err)
-		return
+		log.Printf("Error parsing base URL %s:\n", domain)
+		os.Exit(1)
 	}
 	ch <- Tag{Node: n, Base: base}
 }
@@ -65,7 +66,8 @@ func GetStatuscodeFromURL(u string, ch chan Status, wg *sync.WaitGroup)  {
 	defer wg.Done()
 	response, err := http.Get(u)
 	if err != nil {
-		fmt.Printf("Domain is unreachable %s", err)
+		fmt.Printf("Domain is unreachable %s\n", u)
+		os.Exit(1)
 	}
 	defer response.Body.Close()
 
@@ -80,7 +82,8 @@ func GetLinkStatus(u string, ch chan int, wg *sync.WaitGroup)  {
 	defer wg.Done()
 	response, err := http.Get(u)
 	if err != nil {
-		fmt.Printf("Domain is unreachable %s", err)
+		fmt.Printf("Domain is unreachable %s\n", u)
+		os.Exit(1)
 	}
 	defer response.Body.Close()
 
