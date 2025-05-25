@@ -1,4 +1,4 @@
-# Nock
+# crawlx
 
 URL scraper/crawler Written in Go.
 
@@ -7,15 +7,15 @@ URL scraper/crawler Written in Go.
 how to Install:
 
 ```bash
-go get github.com/martin-montas/nock
+go get github.com/martin-montas/crawlx
 ```
 
 Usage:
 
 ```bash
-$ nock -help                # print usage
-$ nock -mode=crawl -u=http://domain.com # crawl mode
-$ nock -mode=dir -w=/tmp/worlist.txt -u=http://domain.com # dir brute force mode
+$ crawlx -help                # print usage
+$ crawlx -mode=crawl -u=http://domain.com # crawl mode
+$ crawlx -mode=dir -w=/tmp/worlist.txt -u=http://domain.com # dir brute force mode
 ```
 
 Will continue to be updated for extra features

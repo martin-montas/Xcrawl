@@ -4,7 +4,7 @@ import (
 	"golang.org/x/net/html"
 	"net/url"
 
-	"nock/request"
+	"crawlx/request"
 )
 
 func ExtractLinks(doc html.Node, baseUrl url.URL) {

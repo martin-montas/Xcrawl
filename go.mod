@@ -1,4 +1,4 @@
-module nock
+module crawlx
 
 go 1.24.1
 

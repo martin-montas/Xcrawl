@@ -2,15 +2,15 @@ package brute
 
 import (
 	"bufio"
+	"strings"
 	"sync"
 	"fmt"
 	"os"
-	"nock/request"
+	"crawlx/request"
 )
 
-func Run(w string, d string) {
-	fmt.Println("Starting dictionary attack")
-	f, err := os.Open(w)
+func Run(wordlist string, domain string) {
+	f, err := os.Open(wordlist)
 	if err != nil {
 		fmt.Println("Error opening file:", err)
 		return
@@ -20,15 +20,22 @@ func Run(w string, d string) {
 	scanner := bufio.NewScanner(f)
 	wg := sync.WaitGroup{}
 	ch2 := make(chan int)
+	if strings.HasSuffix(domain, "/") {
+		domain = domain
+	} else {
+		domain = domain + "/"
+	}
+	fmt.Printf("test %s\n", domain)
 	for scanner.Scan() {
 		wg.Add(1)
-		go request.GetLinkStatus(string(d + scanner.Text()), ch2, &wg)
+		go request.GetLinkStatus(string(domain + scanner.Text()), ch2, &wg)
 		res := <-ch2
 		wg.Wait()
+
 		if res != 200 {
 			continue
 		}
-		fmt.Printf("\033[32m[%d]\033[0m: %s \n", res, string(d+scanner.Text()))
+		fmt.Printf("\033[32m[%d]\033[0m: %s \n", res, string(domain+scanner.Text()))
 		continue
 	}
 	if err := scanner.Err(); err != nil {

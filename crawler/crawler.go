@@ -2,7 +2,7 @@ package crawler
 
 import (
 	"sync"
-	"nock/request"
+	"crawlx/request"
 )
 
 func Run(domain string) {
