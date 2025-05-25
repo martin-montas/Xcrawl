@@ -21,8 +21,6 @@ func Banner() {
 
 
 		Nock Url/Param Crawler.
-		v1.0.0
-
 		coder: @github.com/martin-montas
 
 		`)
