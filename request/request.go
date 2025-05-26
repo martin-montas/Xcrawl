@@ -13,6 +13,8 @@ import (
 	"golang.org/x/net/html"
 )
 
+var Links []Link
+
 type Link struct {
 	Alive      bool
 	StatusCode int
@@ -29,8 +31,6 @@ type Status struct {
 	Alive      bool
 	StatusCode int
 }
-
-var Links []Link
 
 func Send(domain string, ch chan Tag, wg *sync.WaitGroup) {
 	fetchAndHandle(domain, wg, func(resp *http.Response) {
@@ -64,7 +64,6 @@ func fetchAndHandle(url string, wg *sync.WaitGroup, handler func(*http.Response)
 
 	handler(resp)
 }
-
 
 func GetStatuscodeFromURL(u string, ch chan Status, wg *sync.WaitGroup) {
 	fetchAndHandle(u, wg, func(resp *http.Response) {
