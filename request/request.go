@@ -33,59 +33,41 @@ type Status struct {
 var Links []Link
 
 func Send(domain string, ch chan Tag, wg *sync.WaitGroup) {
-	defer wg.Done()
-	response, err := http.Get(domain)
-
-	if err != nil {
-		fmt.Printf("Domain is unreachable %s:\n", domain)
-		os.Exit(1)
-	}
-	defer response.Body.Close()
-
-	b, err := io.ReadAll(response.Body)
-	if err != nil {
-		log.Printf("Error reading body from %s:\n", domain)
-		os.Exit(1)
-	}
-	body := string(b)
-	n, err := html.Parse(strings.NewReader(body))
-	if err != nil {
-		log.Printf("Error parsing HTML from %s:\n", domain)
-		os.Exit(1)
-	}
-
-	base, err := url.Parse(domain)
-	if err != nil {
-		log.Printf("Error parsing base URL %s:\n", domain)
-		os.Exit(1)
-	}
-	ch <- Tag{Node: n, Base: base}
+	fetchAndHandle(domain, wg, func(resp *http.Response) {
+		b, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Printf("Error reading body from %s:\n", domain)
+			os.Exit(1)
+		}
+		n, err := html.Parse(strings.NewReader(string(b)))
+		if err != nil {
+			log.Printf("Error parsing HTML from %s:\n", domain)
+			os.Exit(1)
+		}
+		base, err := url.Parse(domain)
+		if err != nil {
+			log.Printf("Error parsing base URL %s:\n", domain)
+			os.Exit(1)
+		}
+		ch <- Tag{Node: n, Base: base}
+	})
 }
 
-func GetStatuscodeFromURL(u string, ch chan Status, wg *sync.WaitGroup)  {
+func fetchAndHandle(url string, wg *sync.WaitGroup, handler func(*http.Response)) {
 	defer wg.Done()
-	response, err := http.Get(u)
+	resp, err := http.Get(url)
 	if err != nil {
-		fmt.Printf("Domain is unreachable %s\n", u)
+		fmt.Printf("Domain is unreachable %s\n", url)
 		os.Exit(1)
 	}
-	defer response.Body.Close()
+	defer resp.Body.Close()
 
-	if response.StatusCode != 200 {
-		ch <- Status{Alive: true, StatusCode: response.StatusCode}
-	}
+	handler(resp)
+}
 
-	ch <- Status{Alive: true, StatusCode: response.StatusCode}
-}	
 
-func GetLinkStatus(u string, ch chan int, wg *sync.WaitGroup)  {
-	defer wg.Done()
-	response, err := http.Get(u)
-	if err != nil {
-		fmt.Printf("Domain is unreachable %s\n", u)
-		os.Exit(1)
-	}
-	defer response.Body.Close()
-
-	 ch <-response.StatusCode
+func GetStatuscodeFromURL(u string, ch chan Status, wg *sync.WaitGroup) {
+	fetchAndHandle(u, wg, func(resp *http.Response) {
+		ch <- Status{Alive: true, StatusCode: resp.StatusCode}
+	})
 }

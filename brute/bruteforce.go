@@ -20,21 +20,21 @@ func Run(wordlist string, domain string) {
 
 	scanner := bufio.NewScanner(f)
 	wg := sync.WaitGroup{}
-	ch2 := make(chan int)
+	ch2 := make(chan request.Status)
 	if !strings.HasSuffix(domain, "/") {
 		domain = domain + "/"
 	}
 	fmt.Printf("test %s\n", domain)
 	for scanner.Scan() {
 		wg.Add(1)
-		go request.GetLinkStatus(string(domain + scanner.Text()), ch2, &wg)
+		go request.GetStatuscodeFromURL(string(domain + scanner.Text()), ch2, &wg)
 		res := <-ch2
 		wg.Wait()
 
-		if res != 200 {
+		if res.StatusCode != 200 {
 			continue
 		}
-		fmt.Printf("%s \033[32m[%d]\033[0m: %s \n", time.Now().Format("2006-01-02 03:04:05 PM"), res, string(domain+scanner.Text()))
+	fmt.Printf("%s \033[32m[%d]\033[0m: %s \n", time.Now().Format("2006-01-02 03:04:05 PM"), res.StatusCode, string(domain+scanner.Text()))
 		continue
 	}
 	if err := scanner.Err(); err != nil {
