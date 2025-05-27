@@ -25,11 +25,13 @@ type Link struct {
 type Element struct {
 	Node *html.Node
 	Base *url.URL
+	ResponseLength int64  // ResponseLength
 }
 
 type Status struct {
 	Alive      bool
 	StatusCode int
+	ContentLength int64 // ContentLength
 }
 
 func (l *Link) Get(ch chan Element, wg *sync.WaitGroup) {
@@ -49,7 +51,12 @@ func (l *Link) Get(ch chan Element, wg *sync.WaitGroup) {
 			log.Printf("Error parsing base URL %s:\n", l.Path)
 			os.Exit(1)
 		}
-		ch <- Element{Node: n, Base: base}
+		size := resp.ContentLength
+		if size == int64(-1) {
+			size = int64(3487)
+		}
+
+		ch <- Element{Node: n, Base: base, ResponseLength: size}
 	})
 }
 
@@ -67,6 +74,12 @@ func fetchAndHandle(url string, wg *sync.WaitGroup, handler func(*http.Response)
 
 func GetStatuscodeFromURL(u string, ch chan Status, wg *sync.WaitGroup) {
 	fetchAndHandle(u, wg, func(resp *http.Response) {
-		ch <- Status{Alive: true, StatusCode: resp.StatusCode}
+
+		size := resp.ContentLength
+
+		if size == int64(-1) {
+			size = int64(3487)
+		}
+		ch <- Status{Alive: true, StatusCode: resp.StatusCode, ContentLength: size}
 	})
 }

@@ -46,7 +46,7 @@ func Run(wordlist string, domain string) {
 
 		color := utils.StatusColor(res.StatusCode)
 
-		fmt.Printf("%-21s %s(Status: %3d)\033[0m\n", dir, color, res.StatusCode)
+		fmt.Printf("%-21s %s(Status: %3d)\033[0m [Size: %4d]\n", dir, color, res.StatusCode, res.ContentLength)
 		continue
 	}
 	if err := scanner.Err(); err != nil {
