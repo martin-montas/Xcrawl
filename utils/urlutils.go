@@ -8,25 +8,6 @@ const Green = "\033[32m"
 const Blue  = "\033[34m"
 const Reset = "\033[0m"
 
-func Banner(version string) {
-	fmt.Print("\033[34m")
-	fmt.Println(`
-	                                                     $$\ 
-	                                                     $$ |
-	$$\   $$\  $$$$$$$\  $$$$$$\  $$$$$$\  $$\  $$\  $$\ $$ |
-	\$$\ $$  |$$  _____|$$  __$$\ \____$$\ $$ | $$ | $$ |$$ |
-	 \$$$$  / $$ /      $$ |  \__|$$$$$$$ |$$ | $$ | $$ |$$ |
-	 $$  $$<  $$ |      $$ |     $$  __$$ |$$ | $$ | $$ |$$ |
-	$$  /\$$\ \$$$$$$$\ $$ |     \$$$$$$$ |\$$$$$\$$$$  |$$ |
-	\__/  \__| \_______|\__|      \_______| \_____\____/ \__|
-
-		Xcrawl Url/Param Crawler.
-		coder: @github.com/martin-montas
-
-		Version: ` + version)
-	fmt.Print("\033[0m")
-
-}
 
 func InitialInfo(url string, wordlist string, threads int) {
 	fmt.Printf(`
