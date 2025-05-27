@@ -5,7 +5,7 @@ import (
 	"xcrawl/fetch"
 )
 
-func Run(domain string) {
+func Run(domain string, threads int) {
 	var wg sync.WaitGroup
 	ch := make(chan fetch.Element)
 

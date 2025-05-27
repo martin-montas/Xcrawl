@@ -8,7 +8,7 @@ const Green = "\033[32m"
 const Blue  = "\033[34m"
 const Reset = "\033[0m"
 
-func Banner(Version string) {
+func Banner(version string) {
 	fmt.Print("\033[34m")
 	fmt.Println(`
 	                                                     $$\ 
@@ -23,7 +23,7 @@ func Banner(Version string) {
 		Xcrawl Url/Param Crawler.
 		coder: @github.com/martin-montas
 
-		Version: ` + Version)
+		Version: ` + version)
 	fmt.Print("\033[0m")
 
 }
