@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	Version = "1.5.0"
+	Version = "1.5.2"
 )
 
 func main() {
@@ -37,8 +37,8 @@ func main() {
 				fmt.Println("Usage: dir -u <url> -w <wordlist>")
 				os.Exit(1)
 			}
-			utils.InitialInfo(*url, *wordlist, *threads)
-			brute.Run(*wordlist, *url)
+			utils.InitialInfo(*url, *wordlist, *threads, Version)
+			brute.Run(*wordlist, *url, *threads)
 			os.Exit(0)
 
 		
@@ -54,7 +54,7 @@ func main() {
 				os.Exit(1)
 			}
 
-		    utils.InitialInfo(*url, "", *threads)
+		    utils.InitialInfo(*url, "", *threads, Version)
 			crawler.Run(*url, *threads)
 			os.Exit(0)
 

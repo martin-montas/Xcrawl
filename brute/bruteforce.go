@@ -16,7 +16,7 @@ const 	Green = "\033[32m"
 const 	Blue  = "\033[34m"
 const 	Reset = "\033[0m"
 
-func Run(wordlist string, domain string) {
+func Run(wordlist string, domain string, threads int) {
 	f, err := os.Open(wordlist)
 	if err != nil {
 		fmt.Println("Error opening file:", err)
