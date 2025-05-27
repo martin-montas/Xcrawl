@@ -1,10 +1,10 @@
-package crawler
+package crawler 
 
 import (
 	"golang.org/x/net/html"
 	"net/url"
 
-	"xcrawl/request"
+	"xcrawl/fetch"
 )
 
 func ExtractLinks(doc html.Node, baseUrl url.URL) {
@@ -48,7 +48,6 @@ func whichSection(n *html.Node) string {
 
 func processLinks(n html.Node, baseUrl url.URL) {
 	for i, attr := range n.Attr {
-
 		if attr.Key == "href" {
 			url, err := url.Parse(attr.Val)
 			if err != nil {
@@ -57,15 +56,15 @@ func processLinks(n html.Node, baseUrl url.URL) {
 			resolved := baseUrl.ResolveReference(url)
 
 			if resolved.Host == baseUrl.Host || resolved.Host == "" {
-				alive, statusCode := request.CheckStatuscodeFromURL(resolved.String())
-				l := request.Link{
+				alive, statusCode := fetch.CheckStatuscodeFromURL(resolved.String())
+				l := fetch.Link{
 					Alive:      alive,
 					StatusCode: statusCode,
 					Path:       resolved.String(),
 					ID:         i,
 				}
 				l.DisplayInfo()
-				request.AppendToLinks(&l)
+				fetch.AppendToLinks(&l)
 
 			}
 		}

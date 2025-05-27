@@ -6,9 +6,15 @@ import (
 	"sync"
 	"fmt"
 	"os"
-	"time"
-	"xcrawl/request"
+	"xcrawl/fetch"
+	"xcrawl/utils"
 )
+
+
+const 	Red   = "\033[31m"
+const 	Green = "\033[32m"
+const 	Blue  = "\033[34m"
+const 	Reset = "\033[0m"
 
 func Run(wordlist string, domain string) {
 	f, err := os.Open(wordlist)
@@ -20,21 +26,27 @@ func Run(wordlist string, domain string) {
 
 	scanner := bufio.NewScanner(f)
 	wg := sync.WaitGroup{}
-	ch2 := make(chan request.Status)
+	ch2 := make(chan fetch.Status)
+
+	var dir string
 	if !strings.HasSuffix(domain, "/") {
 		domain = domain + "/"
 	}
-	fmt.Printf("test %s\n", domain)
 	for scanner.Scan() {
 		wg.Add(1)
-		go request.GetStatuscodeFromURL(string(domain + scanner.Text()), ch2, &wg)
+		go fetch.GetStatuscodeFromURL(string(domain + scanner.Text()), ch2, &wg)
 		res := <-ch2
 		wg.Wait()
-
 		if res.StatusCode != 200 {
 			continue
 		}
-	fmt.Printf("%s \033[32m[%d]\033[0m: %s \n", time.Now().Format("2006-01-02 03:04:05 PM"), res.StatusCode, string(domain+scanner.Text()))
+		if !strings.HasSuffix(string(scanner.Text()), "/") {
+			dir = string(scanner.Text()) + "/"
+		}
+
+		color := utils.StatusColor(res.StatusCode)
+
+		fmt.Printf("%-21s %s(Status: %3d)\033[0m\n", dir, color, res.StatusCode)
 		continue
 	}
 	if err := scanner.Err(); err != nil {

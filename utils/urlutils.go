@@ -1,39 +1,63 @@
 package utils
 
-// TODO()
-// func ToFile() {}
+import ( "fmt"
+	)
 
-import (
-	"fmt"
-	"time"
-)
+const Red   = "\033[31m"
+const Green = "\033[32m"
+const Blue  = "\033[34m"
+const Reset = "\033[0m"
 
-func Banner() {
+func Banner(Version string) {
 	fmt.Print("\033[34m")
 	fmt.Println(`
+	                                                     $$\ 
+	                                                     $$ |
+	$$\   $$\  $$$$$$$\  $$$$$$\  $$$$$$\  $$\  $$\  $$\ $$ |
+	\$$\ $$  |$$  _____|$$  __$$\ \____$$\ $$ | $$ | $$ |$$ |
+	 \$$$$  / $$ /      $$ |  \__|$$$$$$$ |$$ | $$ | $$ |$$ |
+	 $$  $$<  $$ |      $$ |     $$  __$$ |$$ | $$ | $$ |$$ |
+	$$  /\$$\ \$$$$$$$\ $$ |     \$$$$$$$ |\$$$$$\$$$$  |$$ |
+	\__/  \__| \_______|\__|      \_______| \_____\____/ \__|
 
-		░  ░░░░  ░░░      ░░░       ░░░░      ░░░  ░░░░  ░░  ░░░░░░░
-		▒▒  ▒▒  ▒▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒  ▒▒  ▒  ▒  ▒▒  ▒▒▒▒▒▒▒
-		▓▓▓    ▓▓▓▓  ▓▓▓▓▓▓▓▓       ▓▓▓  ▓▓▓▓  ▓▓        ▓▓  ▓▓▓▓▓▓▓
-		██  ██  ███  ████  ██  ███  ███        ██   ██   ██  ███████
-		█  ████  ███      ███  ████  ██  ████  ██  ████  ██        █
-		                                                            
-
-
-		Nock Url/Param Crawler.
+		Xcrawl Url/Param Crawler.
 		coder: @github.com/martin-montas
 
-		`)
+		Version: ` + Version)
 	fmt.Print("\033[0m")
 
 }
 
-func PrintErr(s, value string) {
-	fmt.Printf(
-		time.Now().Format("2006-01-02 03:04:05 PM"), "[\033[31mERR\033[0m] %s \n", value)
+func InitialInfo(url string, wordlist string, threads int) {
+	fmt.Printf(`
+===============================================================
+xcrawl v1.5.0
+by martin montas - @github.com/martin-montas
+===============================================================
+[+] URL:      		%-21s
+[+] Wordlist: 		%-21s
+[+] Threads: 		%-21d
 
+===============================================================
+                       STARTING                       
+===============================================================
+`, url, wordlist, threads)
 }
-func PrintInfo(s, value string) {
-	fmt.Printf(
-		time.Now().Format("2006-01-02 03:04:05 PM"), "[\033[33mINFO\033[0m] %s\n", value)
+
+func StatusColor(status int) string {
+	switch {
+	case status >= 100 && status < 200:
+		return "\033[36m" // Cyan
+	case status >= 200 && status < 300:
+		return "\033[32m" // Green
+	case status >= 300 && status < 400:
+		return "\033[34m" // Blue
+	case status >= 400 && status < 500:
+		return "\033[33m" // Yellow
+	case status >= 500:
+		return "\033[31m" // Red
+	default:
+		return "\033[35m" // Magenta for unknown
+	}
 }
+

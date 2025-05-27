@@ -2,23 +2,29 @@ package crawler
 
 import (
 	"sync"
-	"xcrawl/request"
+	"xcrawl/fetch"
 )
 
 func Run(domain string) {
 	var wg sync.WaitGroup
-	ch := make(chan request.Tag)
+	ch := make(chan fetch.Element)
+
+	rootLink := fetch.Link{
+		Path: domain,
+	}
+	fetch.AppendToLinks(&rootLink)
+
 	wg.Add(1)
-	go request.Send(domain, ch, &wg)
+	go rootLink.Get(ch, &wg) 
 
 	res := <-ch
 	wg.Wait()
 
 	ExtractLinks(*res.Node, *res.Base)
 
-	for _, link := range request.GetLinks() {
+	for _, link := range fetch.GetLinks() {
 		wg.Add(1)
-		go request.Send(link.Path, ch, &wg)
+		go link.Get(ch, &wg)
 		res := <-ch
 		wg.Wait()
 

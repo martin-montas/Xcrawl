@@ -1,4 +1,4 @@
-package request
+package fetch
 
 import (
 	"io"
@@ -22,7 +22,7 @@ type Link struct {
 	ID         int
 }
 
-type Tag struct {
+type Element struct {
 	Node *html.Node
 	Base *url.URL
 }
@@ -32,24 +32,24 @@ type Status struct {
 	StatusCode int
 }
 
-func Send(domain string, ch chan Tag, wg *sync.WaitGroup) {
-	fetchAndHandle(domain, wg, func(resp *http.Response) {
+func (l *Link) Get(ch chan Element, wg *sync.WaitGroup) {
+	fetchAndHandle(l.Path, wg, func(resp *http.Response) {
 		b, err := io.ReadAll(resp.Body)
 		if err != nil {
-			log.Printf("Error reading body from %s:\n", domain)
+			log.Printf("Error reading body from %s:\n", l.Path)
 			os.Exit(1)
 		}
 		n, err := html.Parse(strings.NewReader(string(b)))
 		if err != nil {
-			log.Printf("Error parsing HTML from %s:\n", domain)
+			log.Printf("Error parsing HTML from %s:\n", l.Path)
 			os.Exit(1)
 		}
-		base, err := url.Parse(domain)
+		base, err := url.Parse(l.Path)
 		if err != nil {
-			log.Printf("Error parsing base URL %s:\n", domain)
+			log.Printf("Error parsing base URL %s:\n", l.Path)
 			os.Exit(1)
 		}
-		ch <- Tag{Node: n, Base: base}
+		ch <- Element{Node: n, Base: base}
 	})
 }
 
