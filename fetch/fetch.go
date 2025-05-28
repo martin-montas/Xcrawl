@@ -77,8 +77,8 @@ func GetStatuscodeFromURL(u string, ch chan Status, wg *sync.WaitGroup) {
 
 		size := resp.ContentLength
 
-		if size == int64(-1) {
-			size = int64(3487)
+		if size == -1 {
+			size = 3487
 		}
 		ch <- Status{Alive: true, StatusCode: resp.StatusCode, ContentLength: size}
 	})
