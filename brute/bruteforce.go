@@ -10,13 +10,12 @@ import (
 	"xcrawl/utils"
 )
 
-
 const 	Red   = "\033[31m"
 const 	Green = "\033[32m"
 const 	Blue  = "\033[34m"
 const 	Reset = "\033[0m"
 
-func Run(wordlist string, domain string, threads int) {
+func Run(wordlist string, domain string, threads int, delay float64) {
 	f, err := os.Open(wordlist)
 	if err != nil {
 		fmt.Println("Error opening file:", err)
@@ -24,34 +23,62 @@ func Run(wordlist string, domain string, threads int) {
 	}
 	defer f.Close()
 
-	scanner := bufio.NewScanner(f)
-	wg := sync.WaitGroup{}
-	ch2 := make(chan fetch.Status)
+	jobs 	:= make(chan string, threads)
+	results := make(chan fetch.Result)
+	var wg sync.WaitGroup
 
-	var dir string
+	// var dir string
 	if !strings.HasSuffix(domain, "/") {
 		domain = domain + "/"
 	}
-	for scanner.Scan() {
+	
+	// Start worker goroutines
+	for i := 0; i < threads; i++ {
 		wg.Add(1)
-		go fetch.GetStatuscodeFromURL(string(domain + scanner.Text()), ch2, &wg)
-		res := <-ch2
+		go worker(jobs, results, delay, &wg)
+	}
+	// Read the wordlist and enqueue jobs
+	go func() {
+		scanner := bufio.NewScanner(f)
+		for scanner.Scan() {
+			path := scanner.Text()
+			url := domain + path
+			jobs <- url
+		}
+		close(jobs)
+	}()
+	go func() {
 		wg.Wait()
-		if res.StatusCode != 200 {
+		close(results)
+	}()
+
+	// Print results
+	for res := range results {
+		if res.StatusCode != 200  {
 			continue
 		}
-		if !strings.HasSuffix(string(scanner.Text()), "/") {
-			dir = string(scanner.Text()) + "/"
+		dir := res.URL
+
+		if !strings.HasSuffix(dir, "/") {
+			dir += "/"
+		}
+		parts := strings.SplitN(dir, "/", 3)
+
+		if len(parts) < 3 {
+			fmt.Println("The path does not contain two slashes.")
+			return
 		}
 
-		color := utils.StatusColor(res.StatusCode)
+		// Reconstruct the string starting from the second slash
+		result 		:= parts[1] + "/" + parts[2]
+		statusColor := utils.StatusColor(res.StatusCode)
+		resetColor 	:= "\033[0m"
 
-		fmt.Printf("%-21s %s(Status: %3d)\033[0m [Size: %4d]\n", dir, color, res.StatusCode, res.ContentLength)
-		continue
+		fmt.Printf("%-30s  %-7s(Status: %-3d)%-7s  [Size: %-4d]\n",
+			result,
+			statusColor,
+			res.StatusCode,
+			resetColor,
+			res.ContentLength)
 	}
-	if err := scanner.Err(); err != nil {
-		fmt.Println("Error reading file:", err)
-		return
-	}
-	wg.Wait()
 }

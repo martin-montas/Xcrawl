@@ -9,7 +9,7 @@ const Blue  = "\033[34m"
 const Reset = "\033[0m"
 
 
-func InitialInfo(url string, wordlist string, threads int,version string) {
+func InitialInfo(url string, wordlist string, threads int,version string, delay float64) {
 	fmt.Printf(`
 ===============================================================
 xcrawl %-6s 
@@ -18,11 +18,11 @@ by martin montas - @github.com/martin-montas
 [+] URL:      		%-21s
 [+] Wordlist: 		%-21s
 [+] Threads: 		%-21d
-
+[+] Delay:      	%-21.2f
 ===============================================================
                        STARTING                       
 ===============================================================
-`, version, url, wordlist, threads)	
+`, version, url, wordlist, threads, delay)	
 }
 
 func StatusColor(status int) string {

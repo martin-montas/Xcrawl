@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"sync"
 	"os"
 
 	"golang.org/x/net/html"
@@ -28,14 +27,15 @@ type Element struct {
 	ResponseLength int64  // ResponseLength
 }
 
-type Status struct {
-	Alive      bool
-	StatusCode int
-	ContentLength int64 // ContentLength
+type  Result struct {
+	URL 			string
+	Alive      		bool
+	StatusCode 		int
+	ContentLength 	int64 // ContentLength
 }
 
-func (l *Link) Get(ch chan Element, wg *sync.WaitGroup) {
-	fetchAndHandle(l.Path, wg, func(resp *http.Response) {
+func (l *Link) Get()  Element {
+		resp := fetchAndHandle(l.Path)
 		b, err := io.ReadAll(resp.Body)
 		if err != nil {
 			log.Printf("Error reading body from %s:\n", l.Path)
@@ -56,12 +56,15 @@ func (l *Link) Get(ch chan Element, wg *sync.WaitGroup) {
 			size = int64(3487)
 		}
 
-		ch <- Element{Node: n, Base: base, ResponseLength: size}
-	})
+		return  Element {
+			Node: n, 
+			Base: base, 
+			ResponseLength: size,
+		}
+
 }
 
-func fetchAndHandle(url string, wg *sync.WaitGroup, handler func(*http.Response)) {
-	defer wg.Done()
+func fetchAndHandle(url string)  *http.Response {
 	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Printf("Domain is unreachable %s\n", url)
@@ -69,17 +72,20 @@ func fetchAndHandle(url string, wg *sync.WaitGroup, handler func(*http.Response)
 	}
 	defer resp.Body.Close()
 
-	handler(resp)
+	return resp
 }
 
-func GetStatuscodeFromURL(u string, ch chan Status, wg *sync.WaitGroup) {
-	fetchAndHandle(u, wg, func(resp *http.Response) {
+func GetStatuscodeFromURL(u string)  Result {
+	resp := fetchAndHandle(u) 
+	size := resp.ContentLength
+	if size == -1 {
 
-		size := resp.ContentLength
-
-		if size == -1 {
-			size = 3487
-		}
-		ch <- Status{Alive: true, StatusCode: resp.StatusCode, ContentLength: size}
-	})
+		size = 3487
+	}
+	return Result{
+		URL: 			u,
+		Alive:      	true,
+		StatusCode: 	resp.StatusCode,
+		ContentLength: 	size,
+	}
 }
