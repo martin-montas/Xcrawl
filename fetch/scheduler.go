@@ -32,7 +32,7 @@ func (l *Link) DisplayInfo() {
 	fmt.Printf("%s[%d]%s: %s \n", statusColor, l.StatusCode, statusCodeColored[4], l.Path)
 }
 
-func CheckStatuscodeFromURL(u string) (bool, int) {
+func CheckStatuscodeFromURL(u string)  int {
 	response, err := http.Get(u)
 
 	if err != nil {
@@ -42,15 +42,8 @@ func CheckStatuscodeFromURL(u string) (bool, int) {
 	defer response.Body.Close()
 
 	if response.StatusCode != 200 {
-		return false, response.StatusCode
+		return  response.StatusCode
 	}
-	return true, response.StatusCode
+	return  response.StatusCode
 }
 
-func AppendToLinks(l *Link) {
-	Links = append(Links, *l)
-}
-
-func GetLinks() []Link {
-	return Links
-}

@@ -6,6 +6,8 @@ import (
 	"sync"
 	"fmt"
 	"os"
+	"time"
+
 	"xcrawl/fetch"
 	"xcrawl/utils"
 )
@@ -15,6 +17,15 @@ const 	Green = "\033[32m"
 const 	Blue  = "\033[34m"
 const 	Reset = "\033[0m"
 
+
+func worker(jobs <-chan string, results chan<- fetch.Result, delay float64, wg *sync.WaitGroup) {
+	defer wg.Done()
+	for url := range jobs {
+		res := fetch.GetStatuscodeFromURL(url)
+		results <- res
+		time.Sleep(time.Duration(delay * float64(time.Second)))
+	}
+}
 func Run(wordlist string, domain string, threads int, delay float64) {
 	f, err := os.Open(wordlist)
 	if err != nil {
@@ -25,7 +36,7 @@ func Run(wordlist string, domain string, threads int, delay float64) {
 
 	jobs 	:= make(chan string, threads)
 	results := make(chan fetch.Result)
-	var wg sync.WaitGroup
+	var 	wg sync.WaitGroup
 
 	// var dir string
 	if !strings.HasSuffix(domain, "/") {
@@ -37,6 +48,7 @@ func Run(wordlist string, domain string, threads int, delay float64) {
 		wg.Add(1)
 		go worker(jobs, results, delay, &wg)
 	}
+
 	// Read the wordlist and enqueue jobs
 	go func() {
 		scanner := bufio.NewScanner(f)

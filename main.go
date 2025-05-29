@@ -55,7 +55,7 @@ func main() {
 				os.Exit(1)
 			}
 			utils.InitialInfo(*url, "", *threads, Version, *delay)
-			crawler.Run(*url, *threads)
+			crawler.Run(*url, *threads,*delay)
 			os.Exit(0)
 	default: 
 		fmt.Println("Unknown subcommand:", os.Args[1])
