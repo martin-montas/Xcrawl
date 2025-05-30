@@ -3,10 +3,9 @@ package fetch
 import (
 	"io"
 	"fmt"
-	"log"
+	"bytes"
 	"net/http"
 	"net/url"
-	"strings"
 	"os"
 
 	"golang.org/x/net/html"
@@ -30,49 +29,59 @@ type  Result struct {
 	ContentLength 	int64 
 }
 
-func  GetElementfromURL(u string)  Element {
-		resp   := FetchResponse(u)
-		b, err := io.ReadAll(resp.Body)
-		if err != nil {
-			log.Printf("Error reading body from %s:\n", u)
-			os.Exit(1)
-		}
-		n, err := html.Parse(strings.NewReader(string(b)))
-		if err != nil {
-			log.Printf("Error parsing HTML from %s:\n", u)
-			os.Exit(1)
-		}
-		base, err := url.Parse(u)
-		if err != nil {
-			log.Printf("Error parsing base URL %s:\n", u)
-			os.Exit(1)
-		}
-		size := resp.ContentLength
-		if size == int64(-1) {
-			size = int64(3487)
-		}
-
-		return Element {
-			URL:			u,
-			Node: 			n, 
-			Base: 			base, 
-			ResponseLength: size,
-		}
-}
-
-func FetchResponse(url string)  *http.Response {
-	resp, err := http.Get(url)
+func GetElementFromURL(u string) (Element, error) {
+	resp, err := FetchResponse(u)
 	if err != nil {
-		fmt.Printf("Domain is unreachable %s\n", url)
-		os.Exit(1)
+		return Element{}, fmt.Errorf("fetch error for %s: %w", u, err)
 	}
 	defer resp.Body.Close()
 
-	return resp
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return Element{}, fmt.Errorf("error reading body from %s: %w", u, err)
+	}
+
+	n, err := html.Parse(bytes.NewReader(b))
+	if err != nil {
+		return Element{}, fmt.Errorf("error parsing HTML from %s: %w", u, err)
+	}
+
+	base, err := url.Parse(u)
+	if err != nil {
+		return Element{}, fmt.Errorf("error parsing base URL %s: %w", u, err)
+	}
+
+	size := resp.ContentLength
+	if size == -1 {
+		size = int64(len(b))
+	}
+
+	return Element{
+		URL:            u,
+		Node:           n,
+		Base:           base,
+		ResponseLength: size,
+	}, nil
 }
 
+func FetchResponse(url string) (*http.Response, error) {
+	if len(url) > 0 && url[len(url)-1] != '/' {
+		url += "/"
+	}
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, fmt.Errorf("domain is unreachable: %s", url)
+	}
+	return resp, nil
+}
+
+
 func GetStatuscodeFromURL(u string)  Result {
-	resp := FetchResponse(u) 
+	resp, err := FetchResponse(u) 
+	if err != nil {
+		fmt.Printf("Domain is unreachable %s\n", u)
+		os.Exit(1)
+	}	
 	size := resp.ContentLength
 	if size == -1 {
 		size = 3487

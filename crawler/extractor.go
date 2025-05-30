@@ -1,14 +1,13 @@
 package crawler 
 
 import (
-	"golang.org/x/net/html"
 	"net/url"
+	"golang.org/x/net/html"
 	"xcrawl/fetch"
 )
 
-func ExtractLinks(doc html.Node, baseUrl url.URL)  fetch.Link {
+func ExtractLinks(doc html.Node, baseUrl url.URL)  {
 	var (
-		newLinks []fetch.Link
 		tags = []string {
 			"a",
 			"link",
@@ -23,13 +22,11 @@ func ExtractLinks(doc html.Node, baseUrl url.URL)  fetch.Link {
 		if whichSection(&doc) == "head" {
 			continue
 		}
-		link := processLinks(doc, baseUrl)
-		// Links = append(Links, newLinks...)
+		processLinks(doc, baseUrl)
 	}
 	for c := doc.FirstChild; c != nil; c = c.NextSibling {
-		ExtractLinks(*c, baseUrl, l)
+		ExtractLinks(*c, baseUrl)
 	}
-	return l
 }
 
 func whichSection(n *html.Node) string {
@@ -48,9 +45,7 @@ func whichSection(n *html.Node) string {
 	return "unknown"
 }
 
-func processLinks(n html.Node, baseUrl url.URL) fetch.Link {
-	var l fetch.Link
-
+func processLinks(n html.Node, baseUrl url.URL) {
 	for _, attr := range n.Attr {
 		if attr.Key == "href" {
 			url, err := url.Parse(attr.Val)
@@ -60,22 +55,13 @@ func processLinks(n html.Node, baseUrl url.URL) fetch.Link {
 			resolved 	:= baseUrl.ResolveReference(url)
 			statusCode 	:= fetch.CheckStatuscodeFromURL(resolved.String())
 
-			// if resolved.Host == baseUrl.Host || resolved.Host == "" {
-			// 	l := fetch.Link{
-			// 		StatusCode: statusCode,
-			// 		Path:       resolved.String(),
-			// 	}
-			// 	l.DisplayInfo()
-			// 	fetch.
-			// }
-			l = fetch.Link{
+			l := fetch.Link {
 				StatusCode: statusCode,
 				Path:       resolved.String(),
 			}
-
-		}
-		if n.FirstChild != nil && n.FirstChild.Type == html.TextNode {
+			l.DisplayInfo()
+			if n.FirstChild != nil && n.FirstChild.Type == html.TextNode {
+			}
 		}
 	}
-	return l
 }
