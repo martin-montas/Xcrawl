@@ -1,14 +1,14 @@
-package crawler 
+package crawler
 
 import (
-	"net/url"
 	"golang.org/x/net/html"
+	"net/url"
 	"xcrawl/fetch"
 )
 
-func ExtractLinks(doc html.Node, baseUrl url.URL)  {
+func ExtractLinks(doc html.Node, baseUrl url.URL) {
 	var (
-		tags = []string {
+		tags = []string{
 			"a",
 			"link",
 			"base",
@@ -52,10 +52,10 @@ func processLinks(n html.Node, baseUrl url.URL) {
 			if err != nil {
 				continue
 			}
-			resolved 	:= baseUrl.ResolveReference(url)
-			statusCode 	:= fetch.CheckStatuscodeFromURL(resolved.String())
+			resolved := baseUrl.ResolveReference(url)
+			statusCode := fetch.CheckStatuscodeFromURL(resolved.String())
 
-			l := fetch.Link {
+			l := fetch.Link{
 				StatusCode: statusCode,
 				Path:       resolved.String(),
 			}

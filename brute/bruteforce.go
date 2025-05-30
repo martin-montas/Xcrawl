@@ -2,31 +2,50 @@ package brute
 
 import (
 	"bufio"
-	"strings"
-	"sync"
+	"io"
 	"fmt"
 	"os"
+	"sync"
 	"time"
-
+	"net/http"
 	"xcrawl/fetch"
 	"xcrawl/utils"
 )
 
-const 	Red   = "\033[31m"
-const 	Green = "\033[32m"
-const 	Blue  = "\033[34m"
-const 	Reset = "\033[0m"
+const Reset = "\033[0m"
 
+var client = &http.Client{ Timeout: 5 * time.Second }
 
-func worker(jobs <-chan string, results chan<- fetch.Result, delay float64, wg *sync.WaitGroup) {
+func worker(jobs <-chan string, results chan<- fetch.Result, wg *sync.WaitGroup,rateLimiter <- chan time.Time) {
 	defer wg.Done()
 	for url := range jobs {
-		res := fetch.GetStatuscodeFromURL(url)
+		<-rateLimiter
+
+		resp, err := client.Get(url)
+		if err != nil {
+			fmt.Printf("Domain is unreachable %s\n", url)
+			continue
+		}
+		defer resp.Body.Close()
+
+		var size int
+		if resp.ContentLength == -1 {
+			body, _ := io.ReadAll(resp.Body)
+			size = len(body)
+		} else {
+			size = int(resp.ContentLength)
+		}
+
+		res := fetch.Result {
+			URL:           url,
+			StatusCode:    resp.StatusCode,
+			ContentLength: int64(size),
+		}
 		results <- res
-		time.Sleep(time.Duration(delay * float64(time.Second)))
 	}
 }
-func Run(wordlist string, domain string, threads int, delay float64) {
+
+func Run(wordlist string, baseURL string, threads int, delay float64) {
 	f, err := os.Open(wordlist)
 	if err != nil {
 		fmt.Println("Error opening file:", err)
@@ -34,63 +53,53 @@ func Run(wordlist string, domain string, threads int, delay float64) {
 	}
 	defer f.Close()
 
-	jobs 	:= make(chan string, threads)
-	results := make(chan fetch.Result)
-	var 	wg sync.WaitGroup
+	jobs := make(chan string, threads)
+	results := make(chan fetch.Result, threads)
+	var wg sync.WaitGroup
+	rate := time.Second / 5
+	rateLimiter := time.Tick(rate)
 
 	// var dir string
-	if !strings.HasSuffix(domain, "/") {
-		domain = domain + "/"
+	if len(baseURL) > 0 && baseURL[len(baseURL)-1] != '/' {
+		baseURL = baseURL + "/"
 	}
-	
+
 	// Start worker goroutines
 	for i := 0; i < threads; i++ {
 		wg.Add(1)
-		go worker(jobs, results, delay, &wg)
+		go worker(jobs, results, &wg, rateLimiter)
 	}
 
-	// Read the wordlist and enqueue jobs
 	go func() {
 		scanner := bufio.NewScanner(f)
 		for scanner.Scan() {
 			path := scanner.Text()
-			url := domain + path
+			url := baseURL + path
 			jobs <- url
+		}
+		if err := scanner.Err(); err != nil {
+			fmt.Println("Error reading file:", err)
 		}
 		close(jobs)
 	}()
+
+	// Collect results in a separate goroutine
 	go func() {
 		wg.Wait()
 		close(results)
 	}()
 
-	// Print results
 	for res := range results {
-		if res.StatusCode != 200  {
+		if utils.IsForbidden(res.StatusCode) {
 			continue
 		}
-		dir := res.URL
 
-		if !strings.HasSuffix(dir, "/") {
-			dir += "/"
-		}
-		parts := strings.SplitN(dir, "/", 3)
-
-		if len(parts) < 3 {
-			fmt.Println("The path does not contain two slashes.")
-			return
-		}
-
-		// Reconstruct the string starting from the second slash
-		result 		:= parts[1] + "/" + parts[2]
-		statusColor := utils.StatusColor(res.StatusCode)
-		resetColor 	:= "\033[0m"
-
-		fmt.Printf("%-30s  %-7s(Status: %-3d)%-7s  [Size: %-4d]\n",
-			result,
-			statusColor,
+		fmt.Printf("%-40s %sStatus: %3d%s [Size: %5d]\n",
+			res.URL,
+			utils.StatusColor(res.StatusCode), // e.g., "\033[32m"
 			res.StatusCode,
-			resetColor,
+			Reset, // e.g., "\033[0m"
 			res.ContentLength)
 	}
 }
+

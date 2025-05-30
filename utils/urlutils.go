@@ -1,15 +1,15 @@
 package utils
 
-import ( "fmt"
-	)
+import (
+	"fmt"
+)
 
-const Red   = "\033[31m"
+const Red = "\033[31m"
 const Green = "\033[32m"
-const Blue  = "\033[34m"
+const Blue = "\033[34m"
 const Reset = "\033[0m"
 
-
-func InitialInfo(url string, wordlist string, threads int,version string, delay float64) {
+func InitialInfo(url string, wordlist string, threads int, version string, delay float64) {
 	fmt.Printf(`
 ===============================================================
 xcrawl %-6s 
@@ -22,7 +22,7 @@ by martin montas - @github.com/martin-montas
 ===============================================================
                        STARTING                       
 ===============================================================
-`, version, url, wordlist, threads, delay)	
+`, version, url, wordlist, threads, delay)
 }
 
 func StatusColor(status int) string {
@@ -42,3 +42,14 @@ func StatusColor(status int) string {
 	}
 }
 
+func IsForbidden(statusCode int)  bool {
+	switch statusCode {
+	case 404:
+		return true
+	case 500:
+		return true
+	default:
+		return false
+
+	}
+}

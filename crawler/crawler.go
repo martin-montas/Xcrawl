@@ -1,9 +1,9 @@
 package crawler
 
 import (
-	"sync"
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
 	"xcrawl/fetch"
@@ -12,7 +12,7 @@ import (
 func worker(delay float64, links []fetch.Link, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for i := 0; i < len(links); i++ {
-		link 	 := links[i]
+		link := links[i]
 		res, err := fetch.GetElementFromURL(link.Path)
 		if err != nil {
 			fmt.Printf("error: %s\n", err)
@@ -30,16 +30,17 @@ func Run(domain string, threads int, delay float64) {
 		fmt.Printf("Domain is unreachable %s\n", domain)
 		os.Exit(1)
 	}
+
 	// var dir string
 	if domain[len(domain)-1:] != "/" {
 		domain = domain + "/"
 	}
 	var Links []fetch.Link
-	l 	:= fetch.Link {
-		Path: domain,
+	l := fetch.Link{
+		Path:       domain,
 		StatusCode: domainStatus,
 	}
-	Links 	 = append(Links, l)
+	Links = append(Links, l)
 
 	var wg sync.WaitGroup
 

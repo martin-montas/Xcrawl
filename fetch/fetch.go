@@ -1,9 +1,9 @@
 package fetch
 
 import (
-	"io"
-	"fmt"
 	"bytes"
+	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -12,21 +12,21 @@ import (
 )
 
 type Link struct {
-	StatusCode 		int
-	Path       		string
+	StatusCode int
+	Path       string
 }
 
 type Element struct {
-	URL 			string
-	Node 			*html.Node
-	Base 			*url.URL
+	URL            string
+	Node           *html.Node
+	Base           *url.URL
 	ResponseLength int64
 }
 
-type  Result struct {
-	URL 			string
-	StatusCode 		int
-	ContentLength 	int64 
+type Result struct {
+	URL           string
+	StatusCode    int
+	ContentLength int64
 }
 
 func GetElementFromURL(u string) (Element, error) {
@@ -75,20 +75,19 @@ func FetchResponse(url string) (*http.Response, error) {
 	return resp, nil
 }
 
-
-func GetStatuscodeFromURL(u string)  Result {
-	resp, err := FetchResponse(u) 
+func GetStatuscodeFromURL(u string) Result {
+	resp, err := FetchResponse(u)
 	if err != nil {
 		fmt.Printf("Domain is unreachable %s\n", u)
 		os.Exit(1)
-	}	
+	}
 	size := resp.ContentLength
 	if size == -1 {
 		size = 3487
 	}
 	return Result{
-		URL: 			u,
-		StatusCode: 	resp.StatusCode,
-		ContentLength: 	size,
+		URL:           u,
+		StatusCode:    resp.StatusCode,
+		ContentLength: size,
 	}
 }
