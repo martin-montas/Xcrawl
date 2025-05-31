@@ -1,6 +1,6 @@
 # crawlx
 
-URL scraper/crawler Written in Go.
+URL directory bruteforcer/crawler Written in Go.
 
 
 
@@ -13,7 +13,7 @@ go get github.com/martin-montas/crawlx
 Usage:
 
 ```bash
-$ crawlx version
+$ crawlx version    # print version
 $ crawlx crawl -u http://domain.com # crawl mode
 $ crawlx dir -w /tmp/worlist.txt -u http://domain.com # dir brute force mode
 ```
