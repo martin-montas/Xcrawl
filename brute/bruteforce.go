@@ -8,14 +8,13 @@ import (
 	"sync"
 	"time"
 	"net/http"
+
 	"xcrawl/fetch"
 	"xcrawl/utils"
 )
 
 const Reset = "\033[0m"
-
-var client = &http.Client{ Timeout: 5 * time.Second }
-
+var client  = &http.Client{ Timeout: 5 * time.Second }
 func worker(jobs <-chan string, results chan<- fetch.Result, wg *sync.WaitGroup,rateLimiter <- chan time.Time) {
 	defer wg.Done()
 	for url := range jobs {
@@ -71,13 +70,13 @@ func Run(wordlist string, baseURL string, threads int, delay float64) {
 	}
 
 	go func() {
-		scanner := bufio.NewScanner(f)
+		scanner  := bufio.NewScanner(f)
 		for scanner.Scan() {
 			path := scanner.Text()
-			url := baseURL + path
+			url  := baseURL + path
 			jobs <- url
 		}
-		if err := scanner.Err(); err != nil {
+		if err   := scanner.Err(); err != nil {
 			fmt.Println("Error reading file:", err)
 		}
 		close(jobs)

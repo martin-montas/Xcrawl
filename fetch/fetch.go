@@ -12,8 +12,9 @@ import (
 )
 
 type Link struct {
-	StatusCode int
 	Path       string
+	StatusCode int
+	Alive      bool
 }
 
 type Element struct {
