@@ -22,7 +22,7 @@ func worker(jobs <-chan string, results chan<- fetch.Result, wg *sync.WaitGroup,
 
 		resp, err := client.Get(url)
 		if err != nil {
-			fmt.Printf("Domain is unreachable %s\n", url)
+			fmt.Printf("5 Domain is unreachable %s\n", url)
 			continue
 		}
 		defer resp.Body.Close()

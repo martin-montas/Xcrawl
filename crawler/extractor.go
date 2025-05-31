@@ -26,17 +26,16 @@ func contains(slice []string, item string) bool {
 }
 
 func extractRecursive(doc *html.Node, baseUrl url.URL, links []fetch.Link) []fetch.Link {
-	// If the node matches a tag and isn't in the <head>, attempt to extract link
 	if doc.Type == html.ElementNode && contains(tags, doc.Data) {
 		if whichSection(doc) != "head" {
-			link := ExtractLinksFromNode(doc, baseUrl)
-			if link.Alive {
-				links = append(links, *link)
+			newLinks := ExtractLinksFromNode(doc, baseUrl)
+			for _, link := range newLinks {
+				if link.Alive {
+					links = append(links, link)
+				}
 			}
 		}
 	}
-
-	// Recursively search all child nodes
 	for c := doc.FirstChild; c != nil; c = c.NextSibling {
 		links = extractRecursive(c, baseUrl, links)
 	}
@@ -72,28 +71,31 @@ func SameDomain(urlA, urlB string) bool {
 	return hostA == hostB || strings.HasSuffix(hostA, "."+hostB) || strings.HasSuffix(hostB, "."+hostA)
 }
 
-func ExtractLinksFromNode(n *html.Node, baseURL url.URL) *fetch.Link {
+func ExtractLinksFromNode(n *html.Node, baseURL url.URL) []fetch.Link {
+	var links  []fetch.Link
 	for _, attr := range n.Attr {
 		if attr.Key == "href" {
 			parsed, err := url.Parse(attr.Val)
 			if err != nil {
 				fmt.Println("Bad URL:", err)
-				return &fetch.Link{Alive: false}
+				continue
 			}
 			resolved := baseURL.ResolveReference(parsed)
-			statusCode := fetch.CheckStatuscodeFromURL(resolved.String())
-			if SameDomain(baseURL.String(), resolved.String()) && statusCode == 200 {
-				return &fetch.Link{
-					StatusCode: statusCode,
+			response, err := fetch.FetchResponse(resolved.String())
+			if err != nil {
+				continue
+			}
+			if SameDomain(baseURL.String(), resolved.String()) && response.StatusCode == 200 {
+				links = append(links, fetch.Link {
+					StatusCode: response.StatusCode,
 					Path:       resolved.String(),
 					Alive:      true,
-				}
+				})
+			} else { 
+				continue
 			}
 		}
 	}
-	return &fetch.Link{
-		StatusCode: 0,
-		Path:       "",
-		Alive:      false,
-	}
+	return links
 }
+

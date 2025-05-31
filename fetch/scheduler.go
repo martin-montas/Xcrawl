@@ -36,7 +36,7 @@ func CheckStatuscodeFromURL(u string) int {
 	response, err := http.Get(u)
 
 	if err != nil {
-		fmt.Printf("Domain is unreachable %s\n", u)
+		fmt.Printf("3 Domain is unreachable %s\n", u)
 		os.Exit(1)
 	}
 	defer response.Body.Close()

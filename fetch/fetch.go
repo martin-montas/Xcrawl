@@ -71,7 +71,7 @@ func FetchResponse(url string) (*http.Response, error) {
 	}
 	resp, err := http.Get(url)
 	if err != nil {
-		return nil, fmt.Errorf("domain is unreachable: %s", url)
+		return nil, fmt.Errorf("1 domain is unreachable: %s", url)
 	}
 	return resp, nil
 }
@@ -79,7 +79,7 @@ func FetchResponse(url string) (*http.Response, error) {
 func GetStatuscodeFromURL(u string) Result {
 	resp, err := FetchResponse(u)
 	if err != nil {
-		fmt.Printf("Domain is unreachable %s\n", u)
+		fmt.Printf("2 Domain is unreachable %s\n", u)
 		os.Exit(1)
 	}
 	size := resp.ContentLength

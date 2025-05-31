@@ -4,40 +4,41 @@ import (
 	"fmt"
 	"io"
 	"bytes"
-	"time"
+	// "time"
 	"os"
 	"sync"
 	"net/http"
 	"net/url"
 	"golang.org/x/net/html"
 	"xcrawl/fetch"
+	mapset "github.com/deckarep/golang-set/v2"
 )
 
-// var m  sync.Mutex
-//m.Unlock()
-const Reset = "\033[0m"
-var client  = &http.Client{ Timeout: 5 * time.Second }
 
+const Reset = "\033[0m"
 func worker(wg *sync.WaitGroup, urls <-chan string, responses chan<- []byte) {
 	defer wg.Done()
 
 	for u := range urls {
-		resp, err := client.Get(u)
+		resp, err := http.Get(u)
 		if err != nil {
-			fmt.Printf("Domain is unreachable: %s\n", u)
+			fmt.Printf("4 Domain is unreachable: %s\n", u)
+			wg.Done()
 			continue
 		}
 		body, err := io.ReadAll(resp.Body)
 		resp.Body.Close()
 		if err != nil {
 			fmt.Printf("Failed to read body: %s\n", u)
+			wg.Done()
 			continue
 		}
 		responses <- body
+		wg.Done()
 	}
 }
 
-func Run(baseURL string, threads int, delay float64) {
+func Run(baseURL string, threads int, depth int) {
 	baseURLStatus := fetch.CheckStatuscodeFromURL(baseURL)
 	if baseURLStatus != 200 {
 		fmt.Printf("url is unreachable %s\n", baseURL)
@@ -53,12 +54,16 @@ func Run(baseURL string, threads int, delay float64) {
 		panic(err)
 	}
 
-	urls := make(chan string, threads)
-	responses := make(chan []byte, threads)
-	var wg sync.WaitGroup
+	urls 		:= make(chan string, threads)
+	responses 	:= make(chan []byte, threads)
+	set 		:= mapset.NewSet[string]()
+	var ( 
+		mu sync.Mutex
+		wg sync.WaitGroup
+	)
 
-	seen := make(map[string]bool)
-	var mu sync.Mutex
+	wg.Add(1)
+	urls <- baseURL
 
 	// Start worker goroutines
 	for i := 0; i < threads; i++ {
@@ -66,12 +71,7 @@ func Run(baseURL string, threads int, delay float64) {
 		go worker(&wg, urls, responses)
 	}
 
-	// Seed with baseURL
-	go func() {
-		urls <- baseURL
-	}()
-
-	// Response handler
+	// Start response handler
 	go func() {
 		for body := range responses {
 			doc, err := html.Parse(bytes.NewReader(body))
@@ -80,28 +80,24 @@ func Run(baseURL string, threads int, delay float64) {
 				continue
 			}
 			links := ExtractLinks(doc, *parsedURL)
-
 			for _, link := range links {
-				mu.Lock()
-				fmt.Println("Discovered:", link.Path)
-				if !seen[link.Path] {
-					seen[link.Path] = true
+				if set.Contains(link.Path) {
+					continue
+				}
+				if !set.Contains(link.Path) {
+					mu.Lock()
+					fmt.Printf("Discovered: %s\n", link.Path)
+					mu.Unlock()
+					set.Add(link.Path)
+					wg.Add(1)
 					urls <- link.Path
 				}
-				mu.Unlock()
 			}
+			wg.Done()
 		}
 	}()
-
-	// Wait for all workers, then close responses
-	go func() {
-		wg.Wait()
-		close(responses)
-	}()
-
-	// Wait for a while to allow crawling (simplified)
-	time.Sleep(10 * time.Second)
+	wg.Wait()
 	close(urls)
-
+	close(responses)
 	wg.Done()
 }

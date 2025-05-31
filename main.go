@@ -35,27 +35,27 @@ func main() {
 
 		dirCmd.Parse(os.Args[2:])
 		if *url == "" || *wordlist == "" {
-			fmt.Println("Usage: dir -u <url> -w <wordlist> -t <threads> -d <delay ms>")
+			fmt.Println("Usage: dir -u <url> -w <wordlist> -t <threads>")
 			os.Exit(1)
 		}
-		utils.InitialInfo(*url, *wordlist, *threads, Version, *delay)
+		utils.InitialInfo(*url, *wordlist, *threads, Version)
 		brute.Run(*wordlist, *url, *threads, *delay)
 		os.Exit(0)
 
 	case "crawl":
-		crawlCmd := flag.NewFlagSet("crawl", flag.ExitOnError)
-		url := crawlCmd.String("u", "", "Target URL")
-		threads := crawlCmd.Int("t", 10, "Number of threads")
-		delay := crawlCmd.Float64("d", 0.1, "Number of threads")
+		crawlCmd 	:= flag.NewFlagSet("crawl", flag.ExitOnError)
+		url 		:= crawlCmd.String("u", "", "Target URL")
+		threads 	:= crawlCmd.Int("t", 10, "Number of threads")
+		depth 		:= crawlCmd.Int("depth", 1, "depth of the crawler")
 
 		crawlCmd.Parse(os.Args[2:])
 
 		if *url == "" {
-			fmt.Println("Usage: crawl -u <url> -t <threads> -d <delay ms>")
+			fmt.Println("Usage: crawl -u <url> -t <threads> -d <depth>")
 			os.Exit(1)
 		}
-		utils.InitialInfo(*url, "", *threads, Version, *delay)
-		crawler.Run(*url, *threads, *delay)
+		utils.InitialInfo(*url, "", *threads, Version)
+		crawler.Run(*url, *threads, *depth)
 		os.Exit(0)
 	default:
 		fmt.Println("Unknown subcommand:", os.Args[1])
