@@ -1,9 +1,8 @@
-package response
+package httputils
 
 import (
 	"fmt"
 	"net/http"
-	"os"
 )
 
 type Href struct {
@@ -17,7 +16,7 @@ func NewHref(url string) Href {
 	fetchResponse, err := FetchResponse(url)
 	if err != nil {
 		fmt.Printf("domain is unreachable %s\n", url)
-		os.Exit(1)
+		return Href{}
 	}
 	u := NewRequest(url)
 	return Href{
@@ -36,5 +35,6 @@ func FetchResponse(url string) (*http.Response, error) {
 	if err != nil {
 		return nil, fmt.Errorf("domain is unreachable: %s", url)
 	}
+	resp.Body.Close()
 	return resp, nil
 }

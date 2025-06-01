@@ -22,7 +22,7 @@ func ExtractLinksFromNode(n *html.Node, baseURL url.URL) []LinkInfo {
 				continue
 			}
 			resolved := baseURL.ResolveReference(parsed)
-			response, err := response.FetchResponse(resolved.String())
+			response, err := httputils.FetchResponse(resolved.String())
 			response.Body.Close()
 			if err != nil {
 				continue

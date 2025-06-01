@@ -1,13 +1,13 @@
-package response
+package httputils
 
 import (
-	//"bufio"
+	// "bufio"
 	"fmt"
-	//"io"
-	//"net/http"
+	// "io"
+	// "net/http"
 	"os"
-	//"sync"
-	//"time"
+	// "sync"
+	// "time"
 )
 
 type ResponseData struct {

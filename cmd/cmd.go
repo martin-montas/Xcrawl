@@ -7,21 +7,16 @@ import (
 	"nock/nockdir"
 )
 
-var (
-	Version     = "1.0.0"
-	defaultList = "/usr/share/wordlists/dirb/small.txt"
-)
+var Version = "1.0.0"
 
 type Parser interface {
-	Parse(args []string, version string)
+	Parse(version string)
 }
 
 // modules should be call here
 var registry = map[string]Parser{
 	"dir": &nockdir.NockDir{},
 }
-
-const userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
 
 func Execute() {
 	command := os.Args[1]
@@ -42,5 +37,5 @@ func Execute() {
 }
 
 func Parse(c Parser) {
-	c.Parse(os.Args[2:], Version)
+	c.Parse(Version)
 }

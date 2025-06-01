@@ -8,11 +8,21 @@ type OptionsDir struct {
 	Wordlist string
 	BaseURL  string
 	Threads  int
+	Version  string
 }
 
 // displays the initial information
 func (o *OptionsDir) DisplayBanner() {
-	fmt.Printf("Wordlist: %s\n", o.Wordlist)
-	fmt.Printf("Base URL: %s\n", o.BaseURL)
-	fmt.Printf("Threads: %d\n", o.Threads)
+	fmt.Printf(`
+===============================================================
+xcrawl %-6s 
+by martin montas - @github.com/martin-montas
+===============================================================
+[+] URL:      		%-21s
+[+] Wordlist: 		%-21s
+[+] Threads: 		%-21d
+===============================================================
+                       STARTING                       
+===============================================================
+`, o.Version, o.BaseURL, o.Wordlist, o.Threads)
 }

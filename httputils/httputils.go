@@ -1,11 +1,10 @@
-package response
+package httputils
 
 import (
 	"context"
 	"fmt"
 	"net"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -14,7 +13,9 @@ type HTTPClient struct {
 	userAgent string
 }
 
-func NewHTTPClient(userAgent string) *HTTPClient {
+const userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+
+func NewHTTPClient() *HTTPClient {
 	client := &http.Client{
 		Timeout: 10 * time.Second, // total request timeout
 		Transport: &http.Transport{
@@ -40,17 +41,16 @@ func NewHTTPClient(userAgent string) *HTTPClient {
 func (c *HTTPClient) Get(url string) (*http.Response, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		fmt.Println("Request creation failed:", err)
-		os.Exit(1)
+		return nil, err
 	}
 
 	resp, err := c.client.Do(req)
 	if err != nil {
 		fmt.Println("HTTP request failed:", err)
-		os.Exit(1)
+		return nil, err
 	}
 	defer resp.Body.Close()
 

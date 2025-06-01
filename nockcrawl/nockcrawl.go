@@ -57,7 +57,7 @@ func worker(wg *sync.WaitGroup, parsedURL *url.URL, set mapset.Set[string], l []
 }
 
 func Run(baseURL string, threads int) {
-	baseURLStatus := response.CheckStatuscodeFromURL(baseURL)
+	baseURLStatus := httputils.CheckStatuscodeFromURL(baseURL)
 	if baseURLStatus != 200 {
 		fmt.Printf("url is unreachable %s\n", baseURL)
 		os.Exit(1)
