@@ -11,23 +11,11 @@ import (
 	"golang.org/x/net/html"
 )
 
-type Link struct {
-	Path       string
-	StatusCode int
-	Alive      bool
-}
-
 type Element struct {
 	URL            string
 	Node           *html.Node
 	Base           *url.URL
 	ResponseLength int64
-}
-
-type Result struct {
-	URL           string
-	StatusCode    int
-	ContentLength int64
 }
 
 func GetElementFromURL(u string) (Element, error) {
@@ -74,6 +62,12 @@ func FetchResponse(url string) (*http.Response, error) {
 		return nil, fmt.Errorf("1 domain is unreachable: %s", url)
 	}
 	return resp, nil
+}
+
+type Result struct {
+	URL           string
+	StatusCode    int
+	ContentLength int64
 }
 
 func GetStatuscodeFromURL(u string) Result {

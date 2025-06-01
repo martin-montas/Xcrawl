@@ -1,4 +1,4 @@
-package brute
+package dirAttack
 
 import (
 	"bufio"
@@ -32,11 +32,11 @@ func worker(jobs <-chan string, results chan<- fetch.Result, wg *sync.WaitGroup,
 		if resp.ContentLength == -1 {
 			body, _ := io.ReadAll(resp.Body)
 			size = len(body)
-			_ = resp.Body.Close() 
+			_ = resp.Body.Close()
 		} else {
 
 			size = int(resp.ContentLength)
-			_ = resp.Body.Close() 
+			_ = resp.Body.Close()
 		}
 
 		res := fetch.Result{
@@ -47,7 +47,6 @@ func worker(jobs <-chan string, results chan<- fetch.Result, wg *sync.WaitGroup,
 		results <- res
 	}
 }
-
 
 func Run(wordlist string, baseURL string, threads int) {
 	f, err := os.Open(wordlist)

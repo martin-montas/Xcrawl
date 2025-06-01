@@ -1,4 +1,4 @@
-package crawler
+package crawlMode
 
 import (
 	"bytes"
@@ -15,7 +15,13 @@ import (
 
 const Reset = "\033[0m"
 
-func worker(wg *sync.WaitGroup, parsedURL *url.URL, set mapset.Set[string], Links []fetch.Link) {
+type Link struct {
+	Path       string
+	StatusCode int
+	Alive      bool
+}
+
+func worker(wg *sync.WaitGroup, parsedURL *url.URL, set mapset.Set[string], Links []Link) {
 	defer wg.Done()
 
 	for i := 0; i < len(Links); i++ {
@@ -66,7 +72,7 @@ func Run(baseURL string, threads int, depth int) {
 	}
 
 	set := mapset.NewSet[string]()
-	Links := []fetch.Link{
+	Links := []Link{
 		{
 			StatusCode: 200,
 			Path:       baseURL,

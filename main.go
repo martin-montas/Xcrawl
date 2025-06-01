@@ -2,12 +2,12 @@ package main
 
 import (
 	"flag"
-	"log"
 	"fmt"
+	"log"
 	"os"
 
-	"xcrawl/brute"
-	"xcrawl/crawler"
+	"xcrawl/crawlMode"
+	"xcrawl/dirAttack"
 	"xcrawl/utils"
 )
 
@@ -42,7 +42,7 @@ func main() {
 			os.Exit(1)
 		}
 		utils.InitialInfo(*url, *wordlist, *threads, Version)
-		brute.Run(*wordlist, *url, *threads)
+		dirAttack.Run(*wordlist, *url, *threads)
 		os.Exit(0)
 
 	case "crawl":
@@ -59,7 +59,7 @@ func main() {
 			os.Exit(1)
 		}
 		utils.InitialInfo(*url, "", *threads, Version)
-		crawler.Run(*url, *threads, *depth)
+		crawlMode.Run(*url, *threads, *depth)
 		os.Exit(0)
 	default:
 		fmt.Println("Unknown subcommand:", os.Args[1])

@@ -1,4 +1,4 @@
-package crawler
+package crawlMode
 
 import (
 	"fmt"
@@ -11,21 +11,35 @@ import (
 
 var tags = []string{"a", "link", "base", "area"}
 
-func ExtractLinks(doc *html.Node, baseUrl url.URL) []fetch.Link {
-	var links []fetch.Link
-	return extractRecursive(doc, baseUrl, links)
-}
-
-func contains(slice []string, item string) bool {
-	for _, s := range slice {
-		if s == item {
-			return true
+func ExtractLinksFromNode(n *html.Node, baseURL url.URL) []Link {
+	var links []Link
+	for _, attr := range n.Attr {
+		if attr.Key == "href" {
+			parsed, err := url.Parse(attr.Val)
+			if err != nil {
+				fmt.Println("Bad URL:", err)
+				continue
+			}
+			resolved := baseURL.ResolveReference(parsed)
+			response, err := fetch.FetchResponse(resolved.String())
+			if err != nil {
+				continue
+			}
+			if SameDomain(baseURL.String(), resolved.String()) && response.StatusCode == 200 {
+				links = append(links, Link{
+					StatusCode: response.StatusCode,
+					Path:       resolved.String(),
+					Alive:      true,
+				})
+			} else {
+				continue
+			}
 		}
 	}
-	return false
+	return links
 }
 
-func extractRecursive(doc *html.Node, baseUrl url.URL, links []fetch.Link) []fetch.Link {
+func extractRecursive(doc *html.Node, baseUrl url.URL, links []Link) []Link {
 	if doc.Type == html.ElementNode && contains(tags, doc.Data) {
 		if whichSection(doc) != "head" {
 			newLinks := ExtractLinksFromNode(doc, baseUrl)
@@ -71,30 +85,16 @@ func SameDomain(urlA, urlB string) bool {
 	return hostA == hostB || strings.HasSuffix(hostA, "."+hostB) || strings.HasSuffix(hostB, "."+hostA)
 }
 
-func ExtractLinksFromNode(n *html.Node, baseURL url.URL) []fetch.Link {
-	var links []fetch.Link
-	for _, attr := range n.Attr {
-		if attr.Key == "href" {
-			parsed, err := url.Parse(attr.Val)
-			if err != nil {
-				fmt.Println("Bad URL:", err)
-				continue
-			}
-			resolved := baseURL.ResolveReference(parsed)
-			response, err := fetch.FetchResponse(resolved.String())
-			if err != nil {
-				continue
-			}
-			if SameDomain(baseURL.String(), resolved.String()) && response.StatusCode == 200 {
-				links = append(links, fetch.Link{
-					StatusCode: response.StatusCode,
-					Path:       resolved.String(),
-					Alive:      true,
-				})
-			} else {
-				continue
-			}
+func ExtractLinks(doc *html.Node, baseUrl url.URL) []Link {
+	var links []Link
+	return extractRecursive(doc, baseUrl, links)
+}
+
+func contains(slice []string, item string) bool {
+	for _, s := range slice {
+		if s == item {
+			return true
 		}
 	}
-	return links
+	return false
 }
