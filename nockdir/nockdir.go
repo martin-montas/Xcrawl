@@ -21,6 +21,8 @@ type NockDir struct {
 	client  *response.HTTPClient
 }
 
+const defaultList = "/usr/share/dirb/wordlists/dirb/common.txt"
+
 func (d *NockDir) Parse(args []string, version string) {
 	if len(os.Args) < 2 {
 		fmt.Println("Expected 'dir' , 'crawl' or 'version' subcommand")
@@ -41,7 +43,9 @@ func (d *NockDir) Parse(args []string, version string) {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Wordlist: %s\n", *w)
+	// for debugging:
+	// fmt.Printf("URL: %s\n", *u)
+
 	opts := &OptionsDir{
 		Wordlist: *w,
 		BaseURL:  *u,

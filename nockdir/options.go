@@ -4,8 +4,6 @@ import (
 	"fmt"
 )
 
-const defaultList = "/usr/share/dirb/wordlists/common.txt"
-
 type OptionsDir struct {
 	Wordlist string
 	BaseURL  string
