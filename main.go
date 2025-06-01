@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"log"
 	"fmt"
 	"os"
 
@@ -32,7 +33,10 @@ func main() {
 		wordlist := dirCmd.String("w", defaultList, "Wordlist path")
 		threads := dirCmd.Int("t", 10, "Number of threads")
 
-		dirCmd.Parse(os.Args[2:])
+		if err := dirCmd.Parse(os.Args[2:]); err != nil {
+			log.Fatalf("failed to parse dir command: %v", err)
+		}
+
 		if *url == "" || *wordlist == "" {
 			fmt.Println("Usage: dir -u <url> -w <wordlist> -t <threads>")
 			os.Exit(1)
@@ -42,13 +46,14 @@ func main() {
 		os.Exit(0)
 
 	case "crawl":
-		crawlCmd 	:= flag.NewFlagSet("crawl", flag.ExitOnError)
-		url 		:= crawlCmd.String("u", "", "Target URL")
-		threads 	:= crawlCmd.Int("t", 10, "Number of threads")
-		depth 		:= crawlCmd.Int("d", 1, "depth of the crawler")
+		crawlCmd := flag.NewFlagSet("crawl", flag.ExitOnError)
+		url := crawlCmd.String("u", "", "Target URL")
+		threads := crawlCmd.Int("t", 10, "Number of threads")
+		depth := crawlCmd.Int("d", 1, "depth of the crawler")
 
-		crawlCmd.Parse(os.Args[2:])
-
+		if err := crawlCmd.Parse(os.Args[2:]); err != nil {
+			log.Fatalf("failed to parse dir command: %v", err)
+		}
 		if *url == "" {
 			fmt.Println("Usage: crawl -u <url> -t <threads> -d <depth>")
 			os.Exit(1)

@@ -2,8 +2,8 @@ package crawler
 
 import (
 	"fmt"
-	"strings"
 	"net/url"
+	"strings"
 
 	"golang.org/x/net/html"
 	"xcrawl/fetch"
@@ -72,7 +72,7 @@ func SameDomain(urlA, urlB string) bool {
 }
 
 func ExtractLinksFromNode(n *html.Node, baseURL url.URL) []fetch.Link {
-	var links  []fetch.Link
+	var links []fetch.Link
 	for _, attr := range n.Attr {
 		if attr.Key == "href" {
 			parsed, err := url.Parse(attr.Val)
@@ -86,16 +86,15 @@ func ExtractLinksFromNode(n *html.Node, baseURL url.URL) []fetch.Link {
 				continue
 			}
 			if SameDomain(baseURL.String(), resolved.String()) && response.StatusCode == 200 {
-				links = append(links, fetch.Link {
+				links = append(links, fetch.Link{
 					StatusCode: response.StatusCode,
 					Path:       resolved.String(),
 					Alive:      true,
 				})
-			} else { 
+			} else {
 				continue
 			}
 		}
 	}
 	return links
 }
-

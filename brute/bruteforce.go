@@ -2,20 +2,22 @@ package brute
 
 import (
 	"bufio"
-	"io"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"sync"
 	"time"
-	"net/http"
 
 	"xcrawl/fetch"
 	"xcrawl/utils"
 )
 
 const Reset = "\033[0m"
-var client  = &http.Client{ Timeout: 5 * time.Second }
-func worker(jobs <-chan string, results chan<- fetch.Result, wg *sync.WaitGroup,rateLimiter <- chan time.Time) {
+
+var client = &http.Client{Timeout: 5 * time.Second}
+
+func worker(jobs <-chan string, results chan<- fetch.Result, wg *sync.WaitGroup, rateLimiter <-chan time.Time) {
 	defer wg.Done()
 	for url := range jobs {
 		<-rateLimiter
@@ -25,17 +27,19 @@ func worker(jobs <-chan string, results chan<- fetch.Result, wg *sync.WaitGroup,
 			fmt.Printf("5 Domain is unreachable %s\n", url)
 			continue
 		}
-		defer resp.Body.Close()
 
 		var size int
 		if resp.ContentLength == -1 {
 			body, _ := io.ReadAll(resp.Body)
 			size = len(body)
+			_ = resp.Body.Close() 
 		} else {
+
 			size = int(resp.ContentLength)
+			_ = resp.Body.Close() 
 		}
 
-		res := fetch.Result {
+		res := fetch.Result{
 			URL:           url,
 			StatusCode:    resp.StatusCode,
 			ContentLength: int64(size),
@@ -43,6 +47,7 @@ func worker(jobs <-chan string, results chan<- fetch.Result, wg *sync.WaitGroup,
 		results <- res
 	}
 }
+
 
 func Run(wordlist string, baseURL string, threads int) {
 	f, err := os.Open(wordlist)
@@ -70,13 +75,13 @@ func Run(wordlist string, baseURL string, threads int) {
 	}
 
 	go func() {
-		scanner  := bufio.NewScanner(f)
+		scanner := bufio.NewScanner(f)
 		for scanner.Scan() {
 			path := scanner.Text()
-			url  := baseURL + path
+			url := baseURL + path
 			jobs <- url
 		}
-		if err   := scanner.Err(); err != nil {
+		if err := scanner.Err(); err != nil {
 			fmt.Println("Error reading file:", err)
 		}
 		close(jobs)
@@ -101,4 +106,3 @@ func Run(wordlist string, baseURL string, threads int) {
 			res.ContentLength)
 	}
 }
-

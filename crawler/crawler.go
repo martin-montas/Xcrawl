@@ -1,21 +1,21 @@
 package crawler
 
 import (
-	"fmt"
-	"io"
 	"bytes"
-	"os"
-	"sync"
+	"fmt"
+	mapset "github.com/deckarep/golang-set/v2"
+	"golang.org/x/net/html"
+	"io"
 	"net/http"
 	"net/url"
-	"golang.org/x/net/html"
+	"os"
+	"sync"
 	"xcrawl/fetch"
-	mapset "github.com/deckarep/golang-set/v2"
 )
 
-
 const Reset = "\033[0m"
-func worker(wg *sync.WaitGroup,  parsedURL *url.URL, set mapset.Set[string], Links []fetch.Link) {
+
+func worker(wg *sync.WaitGroup, parsedURL *url.URL, set mapset.Set[string], Links []fetch.Link) {
 	defer wg.Done()
 
 	for i := 0; i < len(Links); i++ {
@@ -65,15 +65,15 @@ func Run(baseURL string, threads int, depth int) {
 		panic(err)
 	}
 
-	set 		:= mapset.NewSet[string]()
-	Links 		:= []fetch.Link{
+	set := mapset.NewSet[string]()
+	Links := []fetch.Link{
 		{
 			StatusCode: 200,
 			Path:       baseURL,
 			Alive:      true,
 		},
 	}
-	var ( 
+	var (
 		wg sync.WaitGroup
 	)
 	for i := 0; i < threads; i++ {
@@ -84,6 +84,6 @@ func Run(baseURL string, threads int, depth int) {
 
 	it := set.Iterator()
 	for value := range it.C {
-		fmt.Printf("Discovered: %s\n", value) 
+		fmt.Printf("Discovered: %s\n", value)
 	}
 }

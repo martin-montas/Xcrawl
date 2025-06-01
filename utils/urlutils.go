@@ -41,7 +41,7 @@ func StatusColor(status int) string {
 	}
 }
 
-func IsForbidden(statusCode int)  bool {
+func IsForbidden(statusCode int) bool {
 	switch statusCode {
 	case 404:
 		return true
