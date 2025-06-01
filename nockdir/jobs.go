@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"nock/httputils"
+	"nock/ioutils"
 )
 
 func (d *NockDir) worker(jobs <-chan string, wg *sync.WaitGroup) {
@@ -23,7 +24,7 @@ func (d *NockDir) worker(jobs <-chan string, wg *sync.WaitGroup) {
 		}
 
 		fmt.Printf("%-40s %sStatus: %3d%s [Size: %5d]\n",
-			d.Name, Reset, d.StatusCode, Reset, d.ContentLength)
+			d.Name, utils.StatusColor(d.StatusCode), d.StatusCode, Reset, d.ContentLength)
 	}
 }
 
