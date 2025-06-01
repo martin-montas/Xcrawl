@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"bytes"
-	// "time"
 	"os"
 	"sync"
 	"net/http"
@@ -16,25 +15,37 @@ import (
 
 
 const Reset = "\033[0m"
-func worker(wg *sync.WaitGroup, urls <-chan string, responses chan<- []byte) {
+func worker(wg *sync.WaitGroup,  parsedURL *url.URL, set mapset.Set[string], Links []fetch.Link) {
 	defer wg.Done()
 
-	for u := range urls {
-		resp, err := http.Get(u)
+	for i := 0; i < len(Links); i++ {
+		resp, err := http.Get(Links[i].Path)
 		if err != nil {
-			fmt.Printf("4 Domain is unreachable: %s\n", u)
-			wg.Done()
+			fmt.Printf("Domain is unreachable: %s\n", Links[i].Path)
 			continue
 		}
 		body, err := io.ReadAll(resp.Body)
 		resp.Body.Close()
 		if err != nil {
-			fmt.Printf("Failed to read body: %s\n", u)
-			wg.Done()
+			fmt.Printf("Failed to read body: %s\n", Links[i].Path)
 			continue
 		}
-		responses <- body
-		wg.Done()
+
+		doc, err := html.Parse(bytes.NewReader(body))
+		if err != nil {
+			fmt.Println("HTML parse error:", err)
+			continue
+		}
+		links := ExtractLinks(doc, *parsedURL)
+		for _, link := range links {
+			if set.Contains(link.Path) {
+				continue
+			}
+			if !set.Contains(link.Path) {
+				set.Add(link.Path)
+				Links = append(Links, link)
+			}
+		}
 	}
 }
 
@@ -54,50 +65,25 @@ func Run(baseURL string, threads int, depth int) {
 		panic(err)
 	}
 
-	urls 		:= make(chan string, threads)
-	responses 	:= make(chan []byte, threads)
 	set 		:= mapset.NewSet[string]()
+	Links 		:= []fetch.Link{
+		{
+			StatusCode: 200,
+			Path:       baseURL,
+			Alive:      true,
+		},
+	}
 	var ( 
-		mu sync.Mutex
 		wg sync.WaitGroup
 	)
-
-	wg.Add(1)
-	urls <- baseURL
-
-	// Start worker goroutines
 	for i := 0; i < threads; i++ {
 		wg.Add(1)
-		go worker(&wg, urls, responses)
+		go worker(&wg, parsedURL, set, Links)
 	}
-
-	// Start response handler
-	go func() {
-		for body := range responses {
-			doc, err := html.Parse(bytes.NewReader(body))
-			if err != nil {
-				fmt.Println("HTML parse error:", err)
-				continue
-			}
-			links := ExtractLinks(doc, *parsedURL)
-			for _, link := range links {
-				if set.Contains(link.Path) {
-					continue
-				}
-				if !set.Contains(link.Path) {
-					mu.Lock()
-					fmt.Printf("Discovered: %s\n", link.Path)
-					mu.Unlock()
-					set.Add(link.Path)
-					wg.Add(1)
-					urls <- link.Path
-				}
-			}
-			wg.Done()
-		}
-	}()
 	wg.Wait()
-	close(urls)
-	close(responses)
-	wg.Done()
+
+	it := set.Iterator()
+	for value := range it.C {
+		fmt.Printf("Discovered: %s\n", value) 
+	}
 }

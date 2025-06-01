@@ -46,7 +46,7 @@ func main() {
 		crawlCmd 	:= flag.NewFlagSet("crawl", flag.ExitOnError)
 		url 		:= crawlCmd.String("u", "", "Target URL")
 		threads 	:= crawlCmd.Int("t", 10, "Number of threads")
-		depth 		:= crawlCmd.Int("depth", 1, "depth of the crawler")
+		depth 		:= crawlCmd.Int("d", 1, "depth of the crawler")
 
 		crawlCmd.Parse(os.Args[2:])
 
