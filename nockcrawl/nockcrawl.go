@@ -17,10 +17,9 @@ import (
 
 const Reset = "\033[0m"
 
-type LinkInfo struct {
-	Path       string
-	StatusCode int
-	Alive      bool
+type NockCrawl struct {
+	options *OptionsCrawl
+	client  *http.Client
 }
 
 func worker(wg *sync.WaitGroup, parsedURL *url.URL, set mapset.Set[string], l []LinkInfo) {

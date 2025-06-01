@@ -8,12 +8,12 @@ import (
 	"time"
 )
 
+const userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+
 type HTTPClient struct {
 	client    *http.Client
 	userAgent string
 }
-
-const userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
 
 func NewHTTPClient() *HTTPClient {
 	client := &http.Client{
@@ -53,7 +53,5 @@ func (c *HTTPClient) Get(url string) (*http.Response, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-
-	fmt.Println("Status Code:", resp.StatusCode)
 	return resp, nil
 }

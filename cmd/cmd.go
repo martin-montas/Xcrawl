@@ -3,20 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
-
-	"nock/nockdir"
 )
-
-var Version = "1.0.0"
-
-type Parser interface {
-	Parse(version string)
-}
-
-// modules should be call here
-var registry = map[string]Parser{
-	"dir": &nockdir.NockDir{},
-}
 
 func Execute() {
 	command := os.Args[1]
@@ -34,8 +21,4 @@ func Execute() {
 		return
 	}
 	Parse(d)
-}
-
-func Parse(c Parser) {
-	c.Parse(Version)
 }

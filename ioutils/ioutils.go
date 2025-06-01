@@ -54,15 +54,3 @@ func StatusColor(status int) string {
 		return "\033[35m" // Magenta for unknown
 	}
 }
-
-func IsForbidden(statusCode int) bool {
-	switch statusCode {
-	case 404:
-		return true
-	case 500:
-		return true
-	default:
-		return false
-
-	}
-}

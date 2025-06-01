@@ -7,7 +7,14 @@ import (
 	"os"
 )
 
-func crawlerCmd() {
+type OptionsCrawl struct {
+	Wordlist string
+	BaseURL  string
+	Threads  int
+	Version  string
+}
+
+func (o *NockCrawl) Parse() {
 	crawlCmd := flag.NewFlagSet("crawl", flag.ExitOnError)
 	url := crawlCmd.String("u", "", "Target URL")
 	// threads := crawlCmd.Int("t", 10, "Number of threads")

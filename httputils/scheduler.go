@@ -19,3 +19,15 @@ func CheckStatuscodeFromURL(u string) int {
 	}
 	return response.StatusCode
 }
+
+func IsForbidden(statusCode int) bool {
+	switch statusCode {
+	case 404:
+		return true
+	case 500:
+		return true
+	default:
+		return false
+
+	}
+}
