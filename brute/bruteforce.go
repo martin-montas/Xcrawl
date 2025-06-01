@@ -44,7 +44,7 @@ func worker(jobs <-chan string, results chan<- fetch.Result, wg *sync.WaitGroup,
 	}
 }
 
-func Run(wordlist string, baseURL string, threads int, delay float64) {
+func Run(wordlist string, baseURL string, threads int) {
 	f, err := os.Open(wordlist)
 	if err != nil {
 		fmt.Println("Error opening file:", err)

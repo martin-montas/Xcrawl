@@ -31,7 +31,6 @@ func main() {
 		url := dirCmd.String("u", "", "Target URL")
 		wordlist := dirCmd.String("w", defaultList, "Wordlist path")
 		threads := dirCmd.Int("t", 10, "Number of threads")
-		delay := dirCmd.Float64("d", 0, "Number of threads")
 
 		dirCmd.Parse(os.Args[2:])
 		if *url == "" || *wordlist == "" {
@@ -39,7 +38,7 @@ func main() {
 			os.Exit(1)
 		}
 		utils.InitialInfo(*url, *wordlist, *threads, Version)
-		brute.Run(*wordlist, *url, *threads, *delay)
+		brute.Run(*wordlist, *url, *threads)
 		os.Exit(0)
 
 	case "crawl":
