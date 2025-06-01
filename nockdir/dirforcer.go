@@ -3,8 +3,6 @@ package dirforcer
 import (
 	"bufio"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 	"sync"
 	"time"
@@ -15,30 +13,11 @@ import (
 
 const Reset = "\033[0m"
 
-func worker(jobs <-chan string, results chan<- httputils.Result, wg *sync.WaitGroup, rateLimiter <-chan time.Time) {
+func worker(jobs <-chan string, results chan<- httputils.URL, wg *sync.WaitGroup, rateLimiter <-chan time.Time) {
 	defer wg.Done()
 	for url := range jobs {
 		<-rateLimiter
-		resp, err := http.Get(url)
-		if err != nil {
-			fmt.Printf("Domain is unreachable %s\n", url)
-			continue
-		}
-		var size int
-		if resp.ContentLength == -1 {
-			body, _ := io.ReadAll(resp.Body)
-			size = len(body)
-			_ = resp.Body.Close()
-		} else {
-
-			size = int(resp.ContentLength)
-			_ = resp.Body.Close()
-		}
-		res := httputils.Result{
-			URL:           url,
-			StatusCode:    resp.StatusCode,
-			ContentLength: int64(size),
-		}
+		res := httputils.NewURL(url)
 		results <- res
 	}
 }
@@ -51,7 +30,7 @@ func Run(wordlist string, baseURL string, threads int) {
 	}
 	defer f.Close()
 	jobs := make(chan string, threads)
-	results := make(chan httputils.Result, threads)
+	results := make(chan httputils.URL, threads)
 	var wg sync.WaitGroup
 	rate := time.Second / 5
 
@@ -86,7 +65,7 @@ func Run(wordlist string, baseURL string, threads int) {
 			continue
 		}
 		fmt.Printf("%-40s %sStatus: %3d%s [Size: %5d]\n",
-			res.URL,
+			res.Name,
 			utils.StatusColor(res.StatusCode), // e.g., "\033[32m"
 			res.StatusCode,
 			Reset, // e.g., "\033[0m"

@@ -6,9 +6,9 @@ import (
 	"log"
 	"os"
 
-	"xcrawl/crawler"
-	"xcrawl/dirforcer"
 	utils "xcrawl/ioutils"
+	"xcrawl/nockcrawl"
+	"xcrawl/nockdir"
 )
 
 const (
