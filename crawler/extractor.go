@@ -1,12 +1,13 @@
-package crawlMode
+package crawler
 
 import (
 	"fmt"
 	"net/url"
 	"strings"
 
+	"xcrawl/httputils"
+
 	"golang.org/x/net/html"
-	"xcrawl/fetch"
 )
 
 var tags = []string{"a", "link", "base", "area"}
@@ -21,7 +22,8 @@ func ExtractLinksFromNode(n *html.Node, baseURL url.URL) []LinkInfo {
 				continue
 			}
 			resolved := baseURL.ResolveReference(parsed)
-			response, err := fetch.FetchResponse(resolved.String())
+			response, err := httputils.FetchResponse(resolved.String())
+			response.Body.Close()
 			if err != nil {
 				continue
 			}
@@ -39,10 +41,10 @@ func ExtractLinksFromNode(n *html.Node, baseURL url.URL) []LinkInfo {
 	return links
 }
 
-func extractRecursive(doc *html.Node, baseUrl url.URL, links []LinkInfo) []LinkInfo {
+func extractRecursive(doc *html.Node, baseURL url.URL, links []LinkInfo) []LinkInfo {
 	if doc.Type == html.ElementNode && contains(tags, doc.Data) {
 		if whichSection(doc) != "head" {
-			newLinks := ExtractLinksFromNode(doc, baseUrl)
+			newLinks := ExtractLinksFromNode(doc, baseURL)
 			for _, link := range newLinks {
 				if link.Alive {
 					links = append(links, link)
@@ -51,7 +53,7 @@ func extractRecursive(doc *html.Node, baseUrl url.URL, links []LinkInfo) []LinkI
 		}
 	}
 	for c := doc.FirstChild; c != nil; c = c.NextSibling {
-		links = extractRecursive(c, baseUrl, links)
+		links = extractRecursive(c, baseURL, links)
 	}
 
 	return links
@@ -85,9 +87,9 @@ func SameDomain(urlA, urlB string) bool {
 	return hostA == hostB || strings.HasSuffix(hostA, "."+hostB) || strings.HasSuffix(hostB, "."+hostA)
 }
 
-func ExtractLinks(doc *html.Node, baseUrl url.URL) []LinkInfo {
+func ExtractLinks(doc *html.Node, baseURL url.URL) []LinkInfo {
 	var links []LinkInfo
-	return extractRecursive(doc, baseUrl, links)
+	return extractRecursive(doc, baseURL, links)
 }
 
 func contains(slice []string, item string) bool {

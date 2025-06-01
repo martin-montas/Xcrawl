@@ -1,16 +1,18 @@
-package crawlMode
+package crawler
 
 import (
 	"bytes"
 	"fmt"
-	mapset "github.com/deckarep/golang-set/v2"
-	"golang.org/x/net/html"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
 	"sync"
-	"xcrawl/fetch"
+
+	mapset "github.com/deckarep/golang-set/v2"
+	"golang.org/x/net/html"
+
+	"xcrawl/httputils"
 )
 
 const Reset = "\033[0m"
@@ -36,7 +38,6 @@ func worker(wg *sync.WaitGroup, parsedURL *url.URL, set mapset.Set[string], l []
 			fmt.Printf("Failed to read body: %s\n", l[i].Path)
 			continue
 		}
-
 		doc, err := html.Parse(bytes.NewReader(body))
 		if err != nil {
 			fmt.Println("HTML parse error:", err)
@@ -55,8 +56,8 @@ func worker(wg *sync.WaitGroup, parsedURL *url.URL, set mapset.Set[string], l []
 	}
 }
 
-func Run(baseURL string, threads int, depth int) {
-	baseURLStatus := fetch.CheckStatuscodeFromURL(baseURL)
+func Run(baseURL string, threads int) {
+	baseURLStatus := httputils.CheckStatuscodeFromURL(baseURL)
 	if baseURLStatus != 200 {
 		fmt.Printf("url is unreachable %s\n", baseURL)
 		os.Exit(1)
@@ -70,7 +71,6 @@ func Run(baseURL string, threads int, depth int) {
 	if err != nil {
 		panic(err)
 	}
-
 	set := mapset.NewSet[string]()
 	Links := []LinkInfo{
 		{
@@ -79,15 +79,12 @@ func Run(baseURL string, threads int, depth int) {
 			Alive:      true,
 		},
 	}
-	var (
-		wg sync.WaitGroup
-	)
+	var wg sync.WaitGroup
 	for i := 0; i < threads; i++ {
 		wg.Add(1)
 		go worker(&wg, parsedURL, set, Links)
 	}
 	wg.Wait()
-
 	it := set.Iterator()
 	for value := range it.C {
 		fmt.Printf("Discovered: %s\n", value)

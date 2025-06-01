@@ -1,8 +1,6 @@
 package utils
 
-import (
-	"fmt"
-)
+import "fmt"
 
 const (
 	Red   = "\033[31m"
@@ -11,7 +9,7 @@ const (
 	Reset = "\033[0m"
 )
 
-func InitialInfo(url string, wordlist string, threads int, version string) {
+func InitialInfoDirForcer(url string, wordlist string, threads int, version string) {
 	fmt.Printf(`
 ===============================================================
 xcrawl %-6s 
@@ -24,6 +22,20 @@ by martin montas - @github.com/martin-montas
                        STARTING                       
 ===============================================================
 `, version, url, wordlist, threads)
+}
+
+func InitialInfoCrawler(url string, threads int, version string) {
+	fmt.Printf(`
+===============================================================
+xcrawl %-6s 
+by martin montas - @github.com/martin-montas
+===============================================================
+[+] URL:      		%-21s
+[+] Threads: 		%-21d
+===============================================================
+                       STARTING                       
+===============================================================
+`, version, url, threads)
 }
 
 func StatusColor(status int) string {

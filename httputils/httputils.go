@@ -1,4 +1,4 @@
-package fetch
+package httputils
 
 import (
 	"bytes"
@@ -11,41 +11,36 @@ import (
 	"golang.org/x/net/html"
 )
 
-type Element struct {
+type Href struct {
 	URL            string
 	Node           *html.Node
 	Base           *url.URL
 	ResponseLength int64
 }
 
-func GetElementFromURL(u string) (Element, error) {
+func GetHrefFromURL(u string) (Href, error) {
 	resp, err := FetchResponse(u)
 	if err != nil {
-		return Element{}, fmt.Errorf("fetch error for %s: %w", u, err)
+		return Href{}, fmt.Errorf("fetch error for %s: %w", u, err)
 	}
 	defer resp.Body.Close()
-
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Element{}, fmt.Errorf("error reading body from %s: %w", u, err)
+		return Href{}, fmt.Errorf("error reading body from %s: %w", u, err)
 	}
-
 	n, err := html.Parse(bytes.NewReader(b))
 	if err != nil {
-		return Element{}, fmt.Errorf("error parsing HTML from %s: %w", u, err)
+		return Href{}, fmt.Errorf("error parsing HTML from %s: %w", u, err)
 	}
-
 	base, err := url.Parse(u)
 	if err != nil {
-		return Element{}, fmt.Errorf("error parsing base URL %s: %w", u, err)
+		return Href{}, fmt.Errorf("error parsing base URL %s: %w", u, err)
 	}
-
 	size := resp.ContentLength
 	if size == -1 {
 		size = int64(len(b))
 	}
-
-	return Element{
+	return Href{
 		URL:            u,
 		Node:           n,
 		Base:           base,
@@ -76,6 +71,7 @@ func GetStatuscodeFromURL(u string) Result {
 		fmt.Printf("domain is unreachable %s\n", u)
 		os.Exit(1)
 	}
+	defer resp.Body.Close()
 	size := resp.ContentLength
 	if size == -1 {
 		size = 3487
