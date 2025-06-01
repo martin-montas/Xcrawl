@@ -15,25 +15,25 @@ import (
 
 const Reset = "\033[0m"
 
-type Link struct {
+type LinkInfo struct {
 	Path       string
 	StatusCode int
 	Alive      bool
 }
 
-func worker(wg *sync.WaitGroup, parsedURL *url.URL, set mapset.Set[string], Links []Link) {
+func worker(wg *sync.WaitGroup, parsedURL *url.URL, set mapset.Set[string], l []LinkInfo) {
 	defer wg.Done()
 
-	for i := 0; i < len(Links); i++ {
-		resp, err := http.Get(Links[i].Path)
+	for i := 0; i < len(l); i++ {
+		resp, err := http.Get(l[i].Path)
 		if err != nil {
-			fmt.Printf("Domain is unreachable: %s\n", Links[i].Path)
+			fmt.Printf("Domain is unreachable: %s\n", l[i].Path)
 			continue
 		}
 		body, err := io.ReadAll(resp.Body)
 		resp.Body.Close()
 		if err != nil {
-			fmt.Printf("Failed to read body: %s\n", Links[i].Path)
+			fmt.Printf("Failed to read body: %s\n", l[i].Path)
 			continue
 		}
 
@@ -49,7 +49,7 @@ func worker(wg *sync.WaitGroup, parsedURL *url.URL, set mapset.Set[string], Link
 			}
 			if !set.Contains(link.Path) {
 				set.Add(link.Path)
-				Links = append(Links, link)
+				l = append(l, link)
 			}
 		}
 	}
@@ -72,7 +72,7 @@ func Run(baseURL string, threads int, depth int) {
 	}
 
 	set := mapset.NewSet[string]()
-	Links := []Link{
+	Links := []LinkInfo{
 		{
 			StatusCode: 200,
 			Path:       baseURL,

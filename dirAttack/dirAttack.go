@@ -15,16 +15,14 @@ import (
 
 const Reset = "\033[0m"
 
-var client = &http.Client{Timeout: 5 * time.Second}
-
 func worker(jobs <-chan string, results chan<- fetch.Result, wg *sync.WaitGroup, rateLimiter <-chan time.Time) {
 	defer wg.Done()
 	for url := range jobs {
 		<-rateLimiter
 
-		resp, err := client.Get(url)
+		resp, err := http.Get(url)
 		if err != nil {
-			fmt.Printf("5 Domain is unreachable %s\n", url)
+			fmt.Printf("Domain is unreachable %s\n", url)
 			continue
 		}
 
@@ -60,7 +58,7 @@ func Run(wordlist string, baseURL string, threads int) {
 	results := make(chan fetch.Result, threads)
 	var wg sync.WaitGroup
 	rate := time.Second / 5
-	rateLimiter := time.Tick(rate)
+	rateLimiter := time.NewTicker(rate)
 
 	// var dir string
 	if len(baseURL) > 0 && baseURL[len(baseURL)-1] != '/' {
@@ -70,7 +68,7 @@ func Run(wordlist string, baseURL string, threads int) {
 	// Start worker goroutines
 	for i := 0; i < threads; i++ {
 		wg.Add(1)
-		go worker(jobs, results, &wg, rateLimiter)
+		go worker(jobs, results, &wg, rateLimiter.C)
 	}
 
 	go func() {

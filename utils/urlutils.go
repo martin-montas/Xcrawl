@@ -4,10 +4,12 @@ import (
 	"fmt"
 )
 
-const Red = "\033[31m"
-const Green = "\033[32m"
-const Blue = "\033[34m"
-const Reset = "\033[0m"
+const (
+	Red   = "\033[31m"
+	Green = "\033[32m"
+	Blue  = "\033[34m"
+	Reset = "\033[0m"
+)
 
 func InitialInfo(url string, wordlist string, threads int, version string) {
 	fmt.Printf(`

@@ -11,8 +11,8 @@ import (
 
 var tags = []string{"a", "link", "base", "area"}
 
-func ExtractLinksFromNode(n *html.Node, baseURL url.URL) []Link {
-	var links []Link
+func ExtractLinksFromNode(n *html.Node, baseURL url.URL) []LinkInfo {
+	var links []LinkInfo
 	for _, attr := range n.Attr {
 		if attr.Key == "href" {
 			parsed, err := url.Parse(attr.Val)
@@ -26,7 +26,7 @@ func ExtractLinksFromNode(n *html.Node, baseURL url.URL) []Link {
 				continue
 			}
 			if SameDomain(baseURL.String(), resolved.String()) && response.StatusCode == 200 {
-				links = append(links, Link{
+				links = append(links, LinkInfo{
 					StatusCode: response.StatusCode,
 					Path:       resolved.String(),
 					Alive:      true,
@@ -39,7 +39,7 @@ func ExtractLinksFromNode(n *html.Node, baseURL url.URL) []Link {
 	return links
 }
 
-func extractRecursive(doc *html.Node, baseUrl url.URL, links []Link) []Link {
+func extractRecursive(doc *html.Node, baseUrl url.URL, links []LinkInfo) []LinkInfo {
 	if doc.Type == html.ElementNode && contains(tags, doc.Data) {
 		if whichSection(doc) != "head" {
 			newLinks := ExtractLinksFromNode(doc, baseUrl)
@@ -85,8 +85,8 @@ func SameDomain(urlA, urlB string) bool {
 	return hostA == hostB || strings.HasSuffix(hostA, "."+hostB) || strings.HasSuffix(hostB, "."+hostA)
 }
 
-func ExtractLinks(doc *html.Node, baseUrl url.URL) []Link {
-	var links []Link
+func ExtractLinks(doc *html.Node, baseUrl url.URL) []LinkInfo {
+	var links []LinkInfo
 	return extractRecursive(doc, baseUrl, links)
 }
 
