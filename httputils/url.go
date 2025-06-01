@@ -1,4 +1,4 @@
-package httputils
+package response
 
 import (
 	//"bufio"
@@ -10,13 +10,13 @@ import (
 	//"time"
 )
 
-type URL struct {
+type ResponseData struct {
 	Name          string
 	StatusCode    int
 	ContentLength int64
 }
 
-func NewURL(u string) URL {
+func NewRequest(u string) ResponseData {
 	resp, err := FetchResponse(u)
 	if err != nil {
 		fmt.Printf("domain is unreachable %s\n", u)
@@ -27,7 +27,7 @@ func NewURL(u string) URL {
 	if size == -1 {
 		size = 3487
 	}
-	return URL{
+	return ResponseData{
 		Name:          u,
 		StatusCode:    resp.StatusCode,
 		ContentLength: size,

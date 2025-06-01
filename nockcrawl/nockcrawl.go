@@ -1,4 +1,4 @@
-package crawler
+package nockcrawl
 
 import (
 	"bytes"
@@ -9,10 +9,10 @@ import (
 	"os"
 	"sync"
 
+	"nock/httputils"
+
 	mapset "github.com/deckarep/golang-set/v2"
 	"golang.org/x/net/html"
-
-	"xcrawl/httputils"
 )
 
 const Reset = "\033[0m"
@@ -57,7 +57,7 @@ func worker(wg *sync.WaitGroup, parsedURL *url.URL, set mapset.Set[string], l []
 }
 
 func Run(baseURL string, threads int) {
-	baseURLStatus := httputils.CheckStatuscodeFromURL(baseURL)
+	baseURLStatus := response.CheckStatuscodeFromURL(baseURL)
 	if baseURLStatus != 200 {
 		fmt.Printf("url is unreachable %s\n", baseURL)
 		os.Exit(1)

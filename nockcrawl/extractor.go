@@ -1,11 +1,11 @@
-package crawler
+package nockcrawl
 
 import (
 	"fmt"
 	"net/url"
 	"strings"
 
-	"xcrawl/httputils"
+	"nock/httputils"
 
 	"golang.org/x/net/html"
 )
@@ -22,7 +22,7 @@ func ExtractLinksFromNode(n *html.Node, baseURL url.URL) []LinkInfo {
 				continue
 			}
 			resolved := baseURL.ResolveReference(parsed)
-			response, err := httputils.FetchResponse(resolved.String())
+			response, err := response.FetchResponse(resolved.String())
 			response.Body.Close()
 			if err != nil {
 				continue

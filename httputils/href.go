@@ -1,4 +1,4 @@
-package httputils
+package response
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ type Href struct {
 	URL            string
 	ResponseLength int64
 	response       *http.Response
-	url            *URL
+	url            *ResponseData
 }
 
 func NewHref(url string) Href {
@@ -19,7 +19,7 @@ func NewHref(url string) Href {
 		fmt.Printf("domain is unreachable %s\n", url)
 		os.Exit(1)
 	}
-	u := NewURL(url)
+	u := NewRequest(url)
 	return Href{
 		URL:            url,
 		ResponseLength: fetchResponse.ContentLength,
