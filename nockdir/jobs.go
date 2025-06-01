@@ -52,7 +52,6 @@ func (d *NockDir) Run(version string) {
 		go d.worker(jobs, &wg)
 	}
 	go func() {
-		defer wg.Done()
 		scanner := bufio.NewScanner(f)
 		for scanner.Scan() {
 			path := scanner.Text()
