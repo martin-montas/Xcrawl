@@ -1,19 +1,22 @@
 package nockcrawl
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 
-	"nock/httputils"
-
+	mapset "github.com/deckarep/golang-set/v2"
 	"golang.org/x/net/html"
+	"nock/httputils"
 )
 
 var tags = []string{"a", "link", "base", "area"}
 
-func ExtractLinksFromNode(n *html.Node, baseURL url.URL) []LinkInfo {
-	var links []LinkInfo
+func ExtractLinksFromNode(n *html.Node, baseURL url.URL) []Href {
 	for _, attr := range n.Attr {
 		if attr.Key == "href" {
 			parsed, err := url.Parse(attr.Val)
@@ -99,4 +102,37 @@ func contains(slice []string, item string) bool {
 		}
 	}
 	return false
+}
+
+func worker(wg *sync.WaitGroup, parsedURL *url.URL, set mapset.Set[string], l []LinkInfo) {
+	defer wg.Done()
+
+	for i := 0; i < len(l); i++ {
+		resp, err := http.Get(l[i].Path)
+		if err != nil {
+			fmt.Printf("Domain is unreachable: %s\n", l[i].Path)
+			continue
+		}
+		body, err := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if err != nil {
+			fmt.Printf("Failed to read body: %s\n", l[i].Path)
+			continue
+		}
+		doc, err := html.Parse(bytes.NewReader(body))
+		if err != nil {
+			fmt.Println("HTML parse error:", err)
+			continue
+		}
+		links := ExtractLinks(doc, *parsedURL)
+		for _, link := range links {
+			if set.Contains(link.Path) {
+				continue
+			}
+			if !set.Contains(link.Path) {
+				set.Add(link.Path)
+				l = append(l, link)
+			}
+		}
+	}
 }
