@@ -1,17 +1,13 @@
 package nockdir
 
 import (
-	// "bufio"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
-	// "sync"
-	// "time"
 
 	"nock/httputils"
-	// utils "nock/ioutils"
 )
 
 const Reset = "\033[0m"
